@@ -72,6 +72,11 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
         break;
       }
 
+      case 'input_audio_buffer.speech_started': {
+        callbacks.onAISpeakingChange?.(false);
+        break;
+      }
+
       default: {
         logServerEvent(event);
         break;

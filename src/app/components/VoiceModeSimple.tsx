@@ -27,7 +27,13 @@ export default function VoiceModeSimple({
 
         const setupMicAnalysis = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
                 const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
                 const analyser = audioContext.createAnalyser();
                 const microphone = audioContext.createMediaStreamSource(stream);
@@ -46,7 +52,7 @@ export default function VoiceModeSimple({
                     if (micAnalyserRef.current) {
                         micAnalyserRef.current.getByteFrequencyData(dataArray);
                         const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-                        setMicVolume(Math.min(average / 128, 1));
+                        setMicVolume(Math.min((average / 60) * 3, 1));
                         micAnimationFrameRef.current = requestAnimationFrame(updateVolume);
                     }
                 };
@@ -110,7 +116,7 @@ export default function VoiceModeSimple({
 
     if (!isActive) return null;
 
-    const scale = 1 + micVolume * 0.3;
+    const scale = 1 + micVolume * 0.15;
     const glowIntensity = micVolume * 60;
 
     return (
@@ -123,13 +129,13 @@ export default function VoiceModeSimple({
 
                 {/* Waveform - AI Speaking - Positioned above center */}
                 {isSpeaking && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-1.5 h-24">
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-2 h-64">
                         {waveformData.map((height, i) => (
                             <div
                                 key={i}
-                                className="w-2 bg-blue-400 rounded-full transition-all duration-100 ease-out"
+                                className="w-3 bg-blue-400 rounded-full transition-all duration-100 ease-out"
                                 style={{
-                                    height: `${height * 80}px`,
+                                    height: `${height * 180}px`,
                                     opacity: 0.5 + height * 0.5,
                                 }}
                             />
@@ -138,25 +144,34 @@ export default function VoiceModeSimple({
                 )}
 
                 {/* Microphone - Always Listening - Fixed in center */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style={{ marginTop: '220px' }}>
                     <div className="relative flex items-center justify-center">
-                        {/* Glow rings when user speaks */}
+                        {/* Base ripple - always visible to show mic is listening */}
+                        <div
+                            className="absolute rounded-full bg-green-400/15 animate-pulse"
+                            style={{
+                                width: '180px',
+                                height: '180px',
+                            }}
+                        />
+
+                        {/* Active glow rings when user speaks */}
                         {micVolume > 0.15 && (
                             <>
                                 <div
-                                    className="absolute rounded-full bg-green-400/20 animate-ping"
+                                    className="absolute rounded-full bg-green-400/40 animate-ping"
                                     style={{
-                                        width: `${140 + glowIntensity}px`,
-                                        height: `${140 + glowIntensity}px`,
-                                        opacity: micVolume * 0.5,
+                                        width: `${160 + glowIntensity}px`,
+                                        height: `${160 + glowIntensity}px`,
+                                        opacity: micVolume * 0.7,
                                     }}
                                 />
                                 <div
-                                    className="absolute rounded-full bg-green-400/10 animate-pulse"
+                                    className="absolute rounded-full bg-green-400/30 animate-pulse"
                                     style={{
-                                        width: `${160 + glowIntensity * 1.5}px`,
-                                        height: `${160 + glowIntensity * 1.5}px`,
-                                        opacity: micVolume * 0.3,
+                                        width: `${200 + glowIntensity * 1.5}px`,
+                                        height: `${200 + glowIntensity * 1.5}px`,
+                                        opacity: micVolume * 0.5,
                                     }}
                                 />
                             </>
@@ -182,23 +197,6 @@ export default function VoiceModeSimple({
                             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                             <line x1="12" x2="12" y1="19" y2="22"></line>
                         </svg>
-
-                        {/* Volume bars under microphone */}
-                        <div className="absolute -bottom-12 flex gap-1.5">
-                            {[...Array(7)].map((_, i) => {
-                                const barHeight = Math.max(4, micVolume * 40 * (1 - Math.abs(i - 3) * 0.15));
-                                return (
-                                    <div
-                                        key={i}
-                                        className="w-1.5 rounded-full bg-green-400 transition-all duration-75"
-                                        style={{
-                                            height: `${barHeight}px`,
-                                            opacity: 0.3 + micVolume * 0.7,
-                                        }}
-                                    />
-                                );
-                            })}
-                        </div>
                     </div>
                 </div>
             </div>
