@@ -30,6 +30,28 @@ yarn-error.log*
 
 # Ignore all env files except .env.sample
 .env
+.env.local
+.env.*.local
+
+# Python
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/venv/
+backend/env/
+backend/.venv/
+backend/*.egg-info/
+backend/dist/
+backend/build/
+
+# Database
+*.db
+*.db-journal
+
+# Docker
+docker-compose.override.yml
 
 
 # vercel

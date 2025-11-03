@@ -37,6 +37,7 @@ const sdkScenarioMap: Record<string, RealtimeAgent[]> = {
 
 import useAudioDownload from "./hooks/useAudioDownload";
 import { useHandleSessionHistory } from "./hooks/useHandleSessionHistory";
+import { useAutoSaveConversation } from "./hooks/useAutoSaveConversation";
 
 // Voice mode
 import VoiceModeSimple from './components/VoiceModeSimple';
@@ -60,6 +61,7 @@ function App() {
   // via global codecPatch at module load 
 
   const {
+    transcriptItems,
     addTranscriptMessage,
     addTranscriptBreadcrumb,
   } = useTranscript();
@@ -118,6 +120,7 @@ function App() {
   const [sessionStatus, setSessionStatus] =
     useState<SessionStatus>("DISCONNECTED");
 
+  const [sessionId] = useState<string>(() => uuidv4()); // Generate unique session ID
   const [isEventsPaneExpanded, setIsEventsPaneExpanded] =
     useState<boolean>(true);
   const [userText, setUserText] = useState<string>("");
@@ -145,6 +148,21 @@ function App() {
   };
 
   useHandleSessionHistory();
+
+  // Auto-save conversation to backend database
+  useAutoSaveConversation({
+    transcriptItems,
+    sessionStatus,
+    agentConfig: searchParams.get("agentConfig") || "default",
+    agentName: selectedAgentName || null, // Convert empty string to null
+    sessionId,
+    experimentId: null, // TODO: Link to experiment when implementing experiment selection
+  });
+
+  // Debug logging for agent name
+  useEffect(() => {
+    console.log('🏷️ Agent name changed:', selectedAgentName);
+  }, [selectedAgentName]);
 
   useEffect(() => {
     let finalAgentConfig = searchParams.get("agentConfig");
