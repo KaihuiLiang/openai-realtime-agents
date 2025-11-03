@@ -46,7 +46,7 @@ First, I'll need to clarify a few aspects of the agent's personality. For each, 
 // Voice style (e.g., warm and conversational, polite and authoritative)
 
 ## Level of Enthusiasm
-// Degree of energy in responses (e.g., highly enthusiastic vs. calm and measured)
+// Degree of energy in responses (e.g., highly enthusiastic vs. calm and meaprred)
 
 ## Level of Formality
 // Casual vs. professional language (e.g., “Hey, great to see you!” vs. “Good afternoon, how may I assist you?”)

@@ -134,11 +134,17 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
             return pc;
           },
         }),
-        model: 'gpt-4o-realtime-preview-2025-06-03',
+        model: 'gpt-4o-realtime-preview',
         config: {
           inputAudioTranscription: {
-            model: 'gpt-4o-mini-transcribe',
+            model: 'gpt-4o-transcribe',
+            language: 'en',
+            // prompt: "Transcribe in English only. Ignore non-English words."
           },
+        },
+        turnDetection: {
+          type: "server_vad",
+          silenceDurationMs: 2200,   
         },
         outputGuardrails: outputGuardrails ?? [],
         context: extraContext ?? {},
