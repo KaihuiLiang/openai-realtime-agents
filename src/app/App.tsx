@@ -39,8 +39,7 @@ import useAudioDownload from "./hooks/useAudioDownload";
 import { useHandleSessionHistory } from "./hooks/useHandleSessionHistory";
 
 // Voice mode
-import VoiceModeMinimal from './components/VoiceModeMinimal';
-
+import VoiceModeSimple from './components/VoiceModeSimple';
 
 function App() {
   const searchParams = useSearchParams()!;
@@ -87,6 +86,8 @@ function App() {
   // Voice mode states
   const [voiceModeActive, setVoiceModeActive] = useState(false);
 
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
+
 
   // Attach SDK audio element once it exists (after first render in browser)
   useEffect(() => {
@@ -107,6 +108,10 @@ function App() {
     onAgentHandoff: (agentName: string) => {
       handoffTriggeredRef.current = true;
       setSelectedAgentName(agentName);
+    },
+    onAISpeakingChange: (isSpeaking: boolean) => {
+      console.log('🎤 onAISpeakingChange called:', isSpeaking);
+      setIsAISpeaking(isSpeaking);
     },
   });
 
@@ -556,11 +561,10 @@ function App() {
         isConnected={sessionStatus === 'connected'}
       />
 
-      <VoiceModeMinimal
+      <VoiceModeSimple
         isActive={voiceModeActive}
         onClose={() => setVoiceModeActive(false)}
-        isSpeaking={false}
-        isListening={false}
+        isSpeaking={isAISpeaking}
       />
     </div>
   );

@@ -13,6 +13,7 @@ import { SessionStatus } from '../types';
 export interface RealtimeSessionCallbacks {
   onConnectionChange?: (status: SessionStatus) => void;
   onAgentHandoff?: (agentName: string) => void;
+  onAISpeakingChange?: (isSpeaking: boolean) => void;
 }
 
 export interface ConnectOptions {
@@ -58,6 +59,19 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
         historyHandlers.handleTranscriptionDelta(event);
         break;
       }
+      case "output_audio_buffer.started": {
+        console.log('🟢 Calling onAISpeakingChange(true)');
+        callbacks.onAISpeakingChange?.(true);
+        break;
+      }
+      case 'output_audio_buffer.stopped':{
+        console.log('🔴 Calling onAISpeakingChange(false)');
+        setTimeout(() => {
+          callbacks.onAISpeakingChange?.(false);
+        }, 100);
+        break;
+      }
+
       default: {
         logServerEvent(event);
         break;
