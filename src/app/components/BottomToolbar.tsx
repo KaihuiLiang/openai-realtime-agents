@@ -1,5 +1,6 @@
 import React from "react";
 import { SessionStatus } from "@/app/types";
+import { Mic } from 'lucide-react';
 
 interface BottomToolbarProps {
   sessionStatus: SessionStatus;
@@ -15,6 +16,8 @@ interface BottomToolbarProps {
   setIsAudioPlaybackEnabled: (val: boolean) => void;
   codec: string;
   onCodecChange: (newCodec: string) => void;
+  voiceModeActive: boolean;
+  setVoiceModeActive: (active: boolean) => void;
 }
 
 function BottomToolbar({
@@ -31,10 +34,13 @@ function BottomToolbar({
   setIsAudioPlaybackEnabled,
   codec,
   onCodecChange,
+  voiceModeActive,
+  setVoiceModeActive,
 }: BottomToolbarProps) {
   const isConnected = sessionStatus === "CONNECTED";
   const isConnecting = sessionStatus === "CONNECTING";
-
+  
+ 
   const handleCodecChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCodec = e.target.value;
     onCodecChange(newCodec);
@@ -150,6 +156,18 @@ function BottomToolbar({
           <option value="pcma">PCMA (8 kHz)</option>
         </select>
       </div>
+      <button
+        onClick={() => setVoiceModeActive(true)}
+        className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${voiceModeActive
+            ? 'bg-blue-700 text-white'
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+        disabled={!isConnected}
+        title="Enter Voice Mode (full screen)"
+      >
+        <Mic size={18} />
+        <span>Voice Mode</span>
+      </button>
     </div>
   );
 }

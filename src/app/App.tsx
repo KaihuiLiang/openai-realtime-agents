@@ -38,6 +38,10 @@ const sdkScenarioMap: Record<string, RealtimeAgent[]> = {
 import useAudioDownload from "./hooks/useAudioDownload";
 import { useHandleSessionHistory } from "./hooks/useHandleSessionHistory";
 
+// Voice mode
+import VoiceModeMinimal from './components/VoiceModeMinimal';
+
+
 function App() {
   const searchParams = useSearchParams()!;
 
@@ -79,6 +83,10 @@ function App() {
     document.body.appendChild(el);
     return el;
   }, []);
+
+  // Voice mode states
+  const [voiceModeActive, setVoiceModeActive] = useState(false);
+
 
   // Attach SDK audio element once it exists (after first render in browser)
   useEffect(() => {
@@ -543,6 +551,16 @@ function App() {
         setIsAudioPlaybackEnabled={setIsAudioPlaybackEnabled}
         codec={urlCodec}
         onCodecChange={handleCodecChange}
+        voiceModeActive={voiceModeActive}
+        setVoiceModeActive={setVoiceModeActive}
+        isConnected={sessionStatus === 'connected'}
+      />
+
+      <VoiceModeMinimal
+        isActive={voiceModeActive}
+        onClose={() => setVoiceModeActive(false)}
+        isSpeaking={false}
+        isListening={false}
       />
     </div>
   );
