@@ -114,7 +114,7 @@ export default function NewAssignmentPage() {
             <option value="">Select agent…</option>
             {agents.map((agent) => (
               <option key={agent.id} value={agent.id}>
-                {agent.agent_config}/{agent.agent_name}
+                {agent.agent_name}
               </option>
             ))}
           </select>

@@ -58,7 +58,7 @@ export default async function AgentsPage() {
 					<table className="min-w-full">
 						<thead className="bg-gradient-to-r from-slate-50 to-slate-100">
 							<tr>
-								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Agent</th>
+								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Agent Name</th>
 								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
 								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Updated</th>
 								<th className="text-right p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
@@ -67,9 +67,8 @@ export default async function AgentsPage() {
 						<tbody className="divide-y divide-slate-100">
 							{agents.map((p) => (
 								<tr key={p.id} className="hover:bg-blue-50/50 transition-colors">
-									<td className="p-4 text-slate-600 text-sm">
-										<span className="bg-slate-100 px-2 py-1 rounded-md font-mono text-xs">{p.agent_config}</span>
-										<span className="text-slate-700 ml-2">{p.agent_name}</span>
+									<td className="p-4 text-slate-700 text-sm font-medium">
+										{p.agent_name}
 									</td>
 									<td className="p-4">
 										<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${

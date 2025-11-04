@@ -64,9 +64,8 @@ export default async function AssignmentsPage() {
                   <td className="p-4 font-mono text-xs text-slate-700">
                     <span className="bg-slate-100 px-2 py-1 rounded" title={a.participant_id}>{getParticipantDisplay(a.participant_id)}</span>
                   </td>
-                  <td className="p-4 text-slate-700">
-                    <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-md font-mono text-xs">{a.agent_config}</span>
-                    <span className="text-slate-700 ml-2">{a.agent_name}</span>
+                  <td className="p-4 text-slate-700 font-medium">
+                    {a.agent_name}
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">

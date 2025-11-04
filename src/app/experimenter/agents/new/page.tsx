@@ -56,25 +56,15 @@ export default function NewAgentPage() {
 						{error}
 					</div>
 				)}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<div>
-						<label className="block text-sm font-semibold text-slate-700 mb-2">Agent Config</label>
-						<input 
-							name="agent_config" 
-							value={form.agent_config} 
-							onChange={handleChange} 
-							className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none font-mono text-sm" 
-						/>
-					</div>
-					<div>
-						<label className="block text-sm font-semibold text-slate-700 mb-2">Agent Name</label>
-						<input 
-							name="agent_name" 
-							value={form.agent_name} 
-							onChange={handleChange} 
-							className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none" 
-						/>
-					</div>
+				<div>
+					<label className="block text-sm font-semibold text-slate-700 mb-2">Agent Name</label>
+					<input 
+						name="agent_name" 
+						value={form.agent_name} 
+						onChange={handleChange} 
+						className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+						required 
+					/>
 				</div>
 				<div>
 					<label className="block text-sm font-semibold text-slate-700 mb-2">System Prompt</label>
