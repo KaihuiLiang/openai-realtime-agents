@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from database import engine, Base
-from routers import prompts, conversations
+from routers import prompts, conversations, participants, assignments, session
 
 # Create tables on startup
 @asynccontextmanager
@@ -41,6 +41,9 @@ app.add_middleware(
 # Include routers
 app.include_router(prompts.router, prefix="/api/prompts", tags=["prompts"])
 app.include_router(conversations.router, prefix="/api/conversations", tags=["conversations"])
+app.include_router(participants.router, prefix="/api/participants", tags=["participants"])
+app.include_router(assignments.router, prefix="/api/assignments", tags=["assignments"])
+app.include_router(session.router, prefix="/api/session", tags=["session"])
 
 @app.get("/")
 async def root():

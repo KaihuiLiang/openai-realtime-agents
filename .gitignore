@@ -33,7 +33,11 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# Python
+# Python (ignore caches and bytecode everywhere)
+__pycache__/
+*.py[cod]
+
+# Python - backend specific (kept for clarity; global rules above already cover these)
 backend/__pycache__/
 backend/*.pyc
 backend/*.pyo

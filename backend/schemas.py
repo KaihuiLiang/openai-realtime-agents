@@ -52,6 +52,7 @@ class ConversationLogBase(BaseModel):
     duration: float
     turn_count: int
     experiment_id: Optional[str] = None
+    participant_id: Optional[str] = None
     user_satisfaction: Optional[int] = Field(None, ge=1, le=5)
     task_completed: Optional[bool] = None
     extra_metadata: Optional[Dict[str, Any]] = None
@@ -82,3 +83,105 @@ class ConversationResponse(BaseModel):
 class MessageResponse(BaseModel):
     message: str
     success: bool = True
+
+# --- Participant schemas ---
+class ParticipantBase(BaseModel):
+    participant_id: str
+    name: Optional[str] = None
+    email: Optional[str] = None
+    is_guest: bool = False
+    extra_metadata: Optional[Dict[str, Any]] = None
+
+class ParticipantCreate(ParticipantBase):
+    pass
+
+class ParticipantUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    extra_metadata: Optional[Dict[str, Any]] = None
+
+class Participant(ParticipantBase):
+    id: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# --- ParticipantAgentAssignment schemas ---
+class AssignmentBase(BaseModel):
+    participant_id: str
+    experiment_prompt_id: str
+    agent_config: str
+    agent_name: str
+    is_active: bool = True
+    completed: bool = False
+    order: int = 0
+    notes: Optional[str] = None
+
+class AssignmentCreate(AssignmentBase):
+    pass
+
+class AssignmentUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    completed: Optional[bool] = None
+    order: Optional[int] = None
+    notes: Optional[str] = None
+
+class Assignment(AssignmentBase):
+    id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# --- User schemas (experimenters) ---
+class UserBase(BaseModel):
+    username: str
+    email: str
+    role: str = "experimenter"
+
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(BaseModel):
+    email: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class User(UserBase):
+    id: str
+    is_active: bool
+    created_at: datetime
+    last_login: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# --- Response models for new entities ---
+class ParticipantsResponse(BaseModel):
+    participants: List[Participant]
+
+class ParticipantResponse(BaseModel):
+    participant: Participant
+
+class AssignmentsResponse(BaseModel):
+    assignments: List[Assignment]
+
+class AssignmentResponse(BaseModel):
+    assignment: Assignment
+
+class UsersResponse(BaseModel):
+    users: List[User]
+
+class UserResponse(BaseModel):
+    user: User
+
+class ParticipantWithAssignments(Participant):
+    assignments: List[Assignment] = []
+
+class ParticipantDetailResponse(BaseModel):
+    participant: ParticipantWithAssignments

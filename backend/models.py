@@ -45,6 +45,7 @@ class ConversationLog(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     experiment_id = Column(String, ForeignKey("experiment_prompts.id", ondelete="SET NULL"), nullable=True, index=True)
+    participant_id = Column(String, ForeignKey("participants.id", ondelete="SET NULL"), nullable=True, index=True)  # NEW: Link to participant
     
     session_id = Column(String, nullable=False, index=True)
     agent_config = Column(String, nullable=False, index=True)
@@ -63,5 +64,74 @@ class ConversationLog(Base):
     
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     
-    # Relationship
+    # Relationships
     experiment = relationship("ExperimentPrompt", back_populates="conversations")
+    participant = relationship("Participant")  # NEW
+
+class Participant(Base):
+    __tablename__ = "participants"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    participant_id = Column(String, unique=True, nullable=False, index=True)  # User-facing ID
+    
+    # Participant info
+    name = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    
+    # Participant type
+    is_guest = Column(Boolean, default=False, index=True)
+    
+    # Metadata
+    extra_metadata = Column(JSON, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    assignments = relationship("ParticipantAgentAssignment", back_populates="participant", cascade="all, delete-orphan")
+
+class ParticipantAgentAssignment(Base):
+    __tablename__ = "participant_agent_assignments"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    participant_id = Column(String, ForeignKey("participants.id", ondelete="CASCADE"), nullable=False, index=True)
+    experiment_prompt_id = Column(String, ForeignKey("experiment_prompts.id", ondelete="CASCADE"), nullable=False, index=True)
+    
+    # Assignment config
+    agent_config = Column(String, nullable=False)  # e.g., "customerServiceRetail"
+    agent_name = Column(String, nullable=False)    # e.g., "Sales Agent"
+    
+    # Assignment status
+    is_active = Column(Boolean, default=True, index=True)
+    completed = Column(Boolean, default=False)
+    
+    # Order for multiple assignments
+    order = Column(Integer, default=0)
+    
+    # Metadata
+    notes = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    participant = relationship("Participant", back_populates="assignments")
+    experiment_prompt = relationship("ExperimentPrompt")
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    username = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, unique=True, nullable=False, index=True)
+    
+    # Authentication (passwords must be hashed before storing; see UserCreate endpoint for hashing implementation)
+    password_hash = Column(String, nullable=False)
+    
+    # User role
+    role = Column(String, nullable=False, default="experimenter", index=True)  # "experimenter" or "admin"
+    
+    # Status
+    is_active = Column(Boolean, default=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_login = Column(DateTime(timezone=True), nullable=True)
