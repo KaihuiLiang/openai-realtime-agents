@@ -185,3 +185,10 @@ class ParticipantWithAssignments(Participant):
 
 class ParticipantDetailResponse(BaseModel):
     participant: ParticipantWithAssignments
+
+# --- Agent response models (alias for ExperimentPrompt with agent-centric naming) ---
+class AgentsResponse(BaseModel):
+    agents: List[ExperimentPrompt]
+
+class AgentResponse(BaseModel):
+    agent: ExperimentPrompt

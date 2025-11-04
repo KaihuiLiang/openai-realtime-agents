@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from database import engine, Base
-from routers import prompts, conversations, participants, assignments, session
+from routers import conversations, participants, assignments, session, agents
 
 # Create tables on startup
 @asynccontextmanager
@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Realtime Agents Backend",
-    description="Backend API for managing experiment prompts and conversation logs",
+    description="Backend API for managing experiment agents and conversation logs",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -39,7 +39,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(prompts.router, prefix="/api/prompts", tags=["prompts"])
+app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
 app.include_router(conversations.router, prefix="/api/conversations", tags=["conversations"])
 app.include_router(participants.router, prefix="/api/participants", tags=["participants"])
 app.include_router(assignments.router, prefix="/api/assignments", tags=["assignments"])

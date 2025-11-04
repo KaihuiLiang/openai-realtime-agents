@@ -1,0 +1,118 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import List, Optional
+
+import sys
+sys.path.append('..')
+from database import get_db
+import models
+import schemas
+
+router = APIRouter()
+
+@router.get("/", response_model=schemas.AgentsResponse)
+async def get_agents(
+    agent_config: Optional[str] = Query(None),
+    agent_name: Optional[str] = Query(None),
+    is_active: Optional[bool] = Query(None),
+    tags: Optional[str] = Query(None),  # Comma-separated
+    db: Session = Depends(get_db)
+):
+    """Get all agents with optional filters"""
+    query = db.query(models.ExperimentPrompt)
+    
+    if agent_config:
+        query = query.filter(models.ExperimentPrompt.agent_config == agent_config)
+    if agent_name:
+        query = query.filter(models.ExperimentPrompt.agent_name == agent_name)
+    if is_active is not None:
+        query = query.filter(models.ExperimentPrompt.is_active == is_active)
+    if tags:
+        tag_list = tags.split(',')
+        # Filter agents that have any of the specified tags
+        query = query.filter(models.ExperimentPrompt.tags.overlap(tag_list))
+    
+    agents = query.order_by(models.ExperimentPrompt.updated_at.desc()).all()
+    return {"agents": agents}
+
+@router.get("/{agent_id}", response_model=schemas.AgentResponse)
+async def get_agent(agent_id: str, db: Session = Depends(get_db)):
+    """Get a single agent by ID"""
+    agent = db.query(models.ExperimentPrompt).filter(
+        models.ExperimentPrompt.id == agent_id
+    ).first()
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    return {"agent": agent}
+
+@router.post("/", response_model=schemas.AgentResponse, status_code=201)
+async def create_agent(
+    agent_data: schemas.ExperimentPromptCreate,
+    db: Session = Depends(get_db)
+):
+    """Create a new agent"""
+    
+    # If setting as active, deactivate others for the same agent
+    if agent_data.is_active:
+        db.query(models.ExperimentPrompt).filter(
+            models.ExperimentPrompt.agent_config == agent_data.agent_config,
+            models.ExperimentPrompt.agent_name == agent_data.agent_name,
+            models.ExperimentPrompt.is_active == True
+        ).update({"is_active": False})
+    
+    agent = models.ExperimentPrompt(**agent_data.model_dump())
+    db.add(agent)
+    db.commit()
+    db.refresh(agent)
+    
+    return {"agent": agent}
+
+@router.patch("/{agent_id}", response_model=schemas.AgentResponse)
+async def update_agent(
+    agent_id: str,
+    agent_data: schemas.ExperimentPromptUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update an agent"""
+    agent = db.query(models.ExperimentPrompt).filter(
+        models.ExperimentPrompt.id == agent_id
+    ).first()
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    # If setting as active, deactivate others for the same agent
+    if agent_data.is_active:
+        db.query(models.ExperimentPrompt).filter(
+            models.ExperimentPrompt.agent_config == agent.agent_config,
+            models.ExperimentPrompt.agent_name == agent.agent_name,
+            models.ExperimentPrompt.is_active == True,
+            models.ExperimentPrompt.id != agent_id
+        ).update({"is_active": False})
+    
+    # Update fields
+    update_data = agent_data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(agent, key, value)
+    
+    db.commit()
+    db.refresh(agent)
+    
+    return {"agent": agent}
+
+@router.delete("/{agent_id}", response_model=schemas.MessageResponse)
+async def delete_agent(agent_id: str, db: Session = Depends(get_db)):
+    """Delete an agent"""
+    agent = db.query(models.ExperimentPrompt).filter(
+        models.ExperimentPrompt.id == agent_id
+    ).first()
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    db.delete(agent)
+    db.commit()
+    
+    return {"message": "Agent deleted successfully", "success": True}
