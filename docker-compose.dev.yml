@@ -27,6 +27,7 @@ services:
       dockerfile: Dockerfile
     container_name: realtime-agents-backend
     restart: unless-stopped
+    user: "${UID}:${GID}"
     ports:
       - "8000:8000"
     environment:
