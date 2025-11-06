@@ -25,6 +25,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link 
       href={href}
+      prefetch={true}
       className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all hover:bg-slate-700 hover:text-white text-slate-300 hover:translate-x-1"
     >
       {children}

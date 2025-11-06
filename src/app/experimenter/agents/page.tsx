@@ -15,7 +15,7 @@ async function getAgents(): Promise<Agent[]> {
 	const base = process.env.BACKEND_URL || 'http://localhost:8000';
 			try {
 				// Try new agents endpoint
-				const res = await fetch(`${base}/api/agents/`, { cache: 'no-store' });
+				const res = await fetch(`${base}/api/agents/`, { next: { revalidate: 30 } });
 				const text = await res.text();
 				let data: any = {};
 				try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }

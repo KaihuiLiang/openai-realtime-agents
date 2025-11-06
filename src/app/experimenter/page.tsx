@@ -1,9 +1,9 @@
 async function getCounts() {
   const base = process.env.BACKEND_URL || 'http://localhost:8000';
   const [agentsRes, participantsRes, assignmentsRes] = await Promise.all([
-    fetch(`${base}/api/agents/`, { cache: 'no-store' }),
-    fetch(`${base}/api/participants/`, { cache: 'no-store' }),
-    fetch(`${base}/api/assignments/`, { cache: 'no-store' }),
+    fetch(`${base}/api/agents/`, { next: { revalidate: 30 } }),
+    fetch(`${base}/api/participants/`, { next: { revalidate: 30 } }),
+    fetch(`${base}/api/assignments/`, { next: { revalidate: 30 } }),
   ]);
   const [agents, participants, assignments] = await Promise.all([
     agentsRes.json().catch(() => ({})),
