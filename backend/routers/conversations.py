@@ -32,7 +32,7 @@ async def get_conversations(
     
     return {"conversations": conversations}
 
-@router.get("/{conversation_id}", response_model=schemas.ConversationResponse)
+@router.get("/{conversation_id}", response_model=schemas.ConversationLog)
 async def get_conversation(conversation_id: str, db: Session = Depends(get_db)):
     """Get a single conversation log by ID"""
     conversation = db.query(models.ConversationLog).filter(
@@ -42,7 +42,7 @@ async def get_conversation(conversation_id: str, db: Session = Depends(get_db)):
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    return {"conversation": conversation}
+    return conversation
 
 @router.post("/", response_model=schemas.ConversationResponse, status_code=201)
 async def create_conversation(
