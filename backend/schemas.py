@@ -74,12 +74,6 @@ class PromptsResponse(BaseModel):
 class PromptResponse(BaseModel):
     prompt: ExperimentPrompt
 
-class ConversationsResponse(BaseModel):
-    conversations: List[ConversationLog]
-
-class ConversationResponse(BaseModel):
-    conversation: ConversationLog
-
 class MessageResponse(BaseModel):
     message: str
     success: bool = True

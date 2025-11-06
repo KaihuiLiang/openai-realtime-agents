@@ -28,7 +28,7 @@ async function getConversations(): Promise<Conversation[]> {
     const res = await fetch(`${base}/api/conversations/`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     const data = await res.json();
-    return data.conversations ?? [];
+    return data as Conversation[];
   } catch {
     return [];
   }
