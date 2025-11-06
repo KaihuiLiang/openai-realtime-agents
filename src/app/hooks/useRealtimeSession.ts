@@ -144,27 +144,16 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
       const ek = await getEphemeralKey();
       const rootAgent = initialAgents[0];
 
-      // Allow overriding the realtime model via env for easy rollout/debugging
-      const realtimeModel = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_REALTIME_MODEL as string | undefined) : undefined) || 'gpt-4o-realtime-preview';
-
       sessionRef.current = new RealtimeSession(rootAgent, {
-        transport: (typeof window !== 'undefined' && (window as any)?.NEXT_PUBLIC_REALTIME_DEBUG === '1')
-          ? new (await import('../lib/DebugRealtimeTransport')).DebugRealtimeWebRTC({
-              audioElement,
-              changePeerConnection: async (pc: RTCPeerConnection) => {
-                applyCodec(pc);
-                return pc;
-              },
-            })
-          : new OpenAIRealtimeWebRTC({
-              audioElement,
-              // Set preferred codec before offer creation
-              changePeerConnection: async (pc: RTCPeerConnection) => {
-                applyCodec(pc);
-                return pc;
-              },
-            }),
-        model: realtimeModel,
+        transport: new OpenAIRealtimeWebRTC({
+          audioElement,
+          // Set preferred codec before offer creation
+          changePeerConnection: async (pc: RTCPeerConnection) => {
+            applyCodec(pc);
+            return pc;
+          },
+        }),
+        model: 'gpt-realtime-mini',
         config: {
           inputAudioTranscription: {
             // Use the widely-available mini transcribe model to avoid 400s from unsupported models
@@ -174,7 +163,7 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
           },
           turnDetection: {
             type: "server_vad",
-            silenceDurationMs: 2200,   
+            silence_duration_ms: 2200,   // Fixed: use snake_case not camelCase
           },
         },
         outputGuardrails: outputGuardrails ?? [],
@@ -185,15 +174,9 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
         await sessionRef.current.connect({ apiKey: ek });
       } catch (err: any) {
         const msg = String(err?.message || err);
-        // Extended diagnostics if debug flag enabled
-        const debugEnabled = (typeof window !== 'undefined') && (window as any)?.NEXT_PUBLIC_REALTIME_DEBUG === '1';
         if (msg.includes('setRemoteDescription') || msg.includes('SessionDescription')) {
-          console.error('[Realtime] SDP negotiation failed - server likely returned non-SDP payload (error JSON).');
-          console.error('Possible causes: model unavailable, ephemeral key invalid/expired, request schema mismatch.');
-          console.error('Remedies: set NEXT_PUBLIC_REALTIME_MODEL to a known-good model, refresh page to get fresh key, check /api/session response body.');
-        }
-        if (debugEnabled) {
-          console.error('[Realtime][DEBUG] Error object:', err);
+          console.error('[Realtime] SDP negotiation failed - server returned error instead of SDP.');
+          console.error('Possible causes: model unavailable, invalid session config parameters, or ephemeral key expired.');
         }
         throw err;
       }
