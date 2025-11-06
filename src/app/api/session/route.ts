@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    // Allow overriding the realtime model via env for easy rollout/debugging
+    const model = process.env.NEXT_PUBLIC_REALTIME_MODEL || process.env.REALTIME_MODEL || "gpt-4o-realtime-preview";
     const response = await fetch(
       "https://api.openai.com/v1/realtime/sessions",
       {
@@ -11,7 +13,7 @@ export async function GET() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-4o-realtime-preview",
+          model,
         }),
       }
     );

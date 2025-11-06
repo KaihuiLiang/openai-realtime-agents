@@ -144,6 +144,9 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
       const ek = await getEphemeralKey();
       const rootAgent = initialAgents[0];
 
+      // Allow overriding the realtime model via env for easy rollout/debugging
+      const realtimeModel = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_REALTIME_MODEL as string | undefined) : undefined) || 'gpt-4o-realtime-preview';
+
       sessionRef.current = new RealtimeSession(rootAgent, {
         transport: new OpenAIRealtimeWebRTC({
           audioElement,
@@ -153,9 +156,10 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
             return pc;
           },
         }),
-        model: 'gpt-4o-realtime-preview',
+        model: realtimeModel,
         config: {
           inputAudioTranscription: {
+            // Keep transcribe model configurable later if needed
             model: 'gpt-4o-transcribe',
             language: 'en',
             // prompt: "Transcribe in English only. Ignore non-English words."
@@ -169,7 +173,18 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
         context: extraContext ?? {},
       });
 
-      await sessionRef.current.connect({ apiKey: ek });
+      try {
+        await sessionRef.current.connect({ apiKey: ek });
+      } catch (err: any) {
+        // Surface clearer hints when SDP answer isn't valid (often due to 400 JSON response)
+        const msg = String(err?.message || err);
+        if (msg.includes('setRemoteDescription') || msg.includes('SessionDescription')) {
+          console.error('[Realtime] SDP negotiation failed. This often means the Realtime API returned an error JSON instead of SDP. Likely causes:');
+          console.error('- The specified realtime model may be unavailable for your account. Try setting NEXT_PUBLIC_REALTIME_MODEL to a valid model.');
+          console.error('- The ephemeral key may have expired. Ensure you fetch a fresh key immediately before connect.');
+        }
+        throw err;
+      }
       updateStatus('CONNECTED');
     },
     [callbacks, updateStatus],
