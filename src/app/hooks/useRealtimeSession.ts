@@ -159,8 +159,8 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
         model: realtimeModel,
         config: {
           inputAudioTranscription: {
-            // Keep transcribe model configurable later if needed
-            model: 'gpt-4o-transcribe',
+            // Use the widely-available mini transcribe model to avoid 400s from unsupported models
+            model: 'gpt-4o-mini-transcribe',
             language: 'en',
             // prompt: "Transcribe in English only. Ignore non-English words."
           },
