@@ -176,12 +176,16 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
       try {
         await sessionRef.current.connect({ apiKey: ek });
       } catch (err: any) {
-        // Surface clearer hints when SDP answer isn't valid (often due to 400 JSON response)
         const msg = String(err?.message || err);
+        // Extended diagnostics if debug flag enabled
+        const debugEnabled = (typeof window !== 'undefined') && (window as any)?.NEXT_PUBLIC_REALTIME_DEBUG === '1';
         if (msg.includes('setRemoteDescription') || msg.includes('SessionDescription')) {
-          console.error('[Realtime] SDP negotiation failed. This often means the Realtime API returned an error JSON instead of SDP. Likely causes:');
-          console.error('- The specified realtime model may be unavailable for your account. Try setting NEXT_PUBLIC_REALTIME_MODEL to a valid model.');
-          console.error('- The ephemeral key may have expired. Ensure you fetch a fresh key immediately before connect.');
+          console.error('[Realtime] SDP negotiation failed - server likely returned non-SDP payload (error JSON).');
+          console.error('Possible causes: model unavailable, ephemeral key invalid/expired, request schema mismatch.');
+          console.error('Remedies: set NEXT_PUBLIC_REALTIME_MODEL to a known-good model, refresh page to get fresh key, check /api/session response body.');
+        }
+        if (debugEnabled) {
+          console.error('[Realtime][DEBUG] Error object:', err);
         }
         throw err;
       }

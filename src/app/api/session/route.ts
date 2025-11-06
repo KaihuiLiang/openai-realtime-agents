@@ -17,6 +17,20 @@ export async function GET() {
         }),
       }
     );
+    // If OpenAI responds with error, surface raw body for easier debugging in the client
+    if (!response.ok) {
+      const text = await response.text();
+      return NextResponse.json(
+        {
+          error: "Failed to create ephemeral session",
+          status: response.status,
+          model,
+          body: text,
+        },
+        { status: response.status },
+      );
+    }
+
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
