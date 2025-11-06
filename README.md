@@ -45,13 +45,28 @@ Ensure backend is running locally at `http://localhost:8000`, then run:
 npm run generate:types
 ```
 
+### Watch Mode for Active Development
+
+When actively developing backend schemas, use watch mode to automatically regenerate types on changes:
+
+```bash
+npm run watch:types
+```
+
+This will poll the OpenAPI endpoint every 3 seconds and regenerate types when the schema changes. You can customize the interval:
+
+```bash
+WATCH_INTERVAL=5000 npm run watch:types  # Check every 5 seconds
+```
+
 ### Custom Overrides
 
 Some backend fields (e.g. `transcript: Dict[str, Any]`) are too generic and appear as `Record<string, never>` in the auto output. We selectively override in `api.ts` using `Omit<...> & { ... }` for better DX while staying close to backend reality.
 
 ### Tips
 
-- Consider wiring a `prebuild` step to auto-run generation when backend is available
+- The `prebuild` script runs automatically before builds to sync types if backend is available
+- Use `npm run watch:types` during development for automatic type updates
 - After backend schema changes, regenerate and run `npm run build`
 
 # Agentic Pattern 1: Chat-Supervisor
