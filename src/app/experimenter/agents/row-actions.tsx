@@ -14,9 +14,27 @@ export default function RowActions({ id }: { id: string }) {
     try {
       const res = await fetch(`/api/backend/agents/${id}`, { method: 'DELETE' });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        const msg = (data as any)?.detail || `Failed: ${res.status}`;
-        throw new Error(msg);
+        // Try to get detailed error from response
+        let errorMsg = `Failed to delete agent (HTTP ${res.status})`;
+        try {
+          const data = await res.json();
+          // Extract detail or message field
+          if (data.detail) {
+            errorMsg = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+          } else if (data.message) {
+            errorMsg = data.message;
+          } else if (data.error) {
+            errorMsg = data.error;
+          } else {
+            // Show entire response if no known error field
+            errorMsg = `Error ${res.status}: ${JSON.stringify(data)}`;
+          }
+        } catch {
+          // If response is not JSON, get text
+          const text = await res.text().catch(() => '');
+          if (text) errorMsg = `Error ${res.status}: ${text.substring(0, 200)}`;
+        }
+        throw new Error(errorMsg);
       }
       router.refresh();
     } catch (e: any) {

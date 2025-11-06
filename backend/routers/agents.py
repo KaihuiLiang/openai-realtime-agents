@@ -112,6 +112,17 @@ async def delete_agent(agent_id: str, db: Session = Depends(get_db)):
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
+    # Check if agent is used in any assignments
+    assignment_count = db.query(models.ParticipantAgentAssignment).filter(
+        models.ParticipantAgentAssignment.experiment_prompt_id == agent_id
+    ).count()
+    
+    if assignment_count > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete agent. It is currently used in {assignment_count} assignment(s). Please delete or reassign those assignments first."
+        )
+    
     db.delete(agent)
     db.commit()
     
