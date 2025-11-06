@@ -14,23 +14,14 @@ type Agent = {
 async function getAgents(): Promise<Agent[]> {
 	const base = process.env.BACKEND_URL || 'http://localhost:8000';
 			try {
-				// Try new agents endpoint
+				// Backend now returns direct array
 				const res = await fetch(`${base}/api/agents/`, { next: { revalidate: 30 } });
 				const text = await res.text();
 				let data: any = {};
 				try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
 				if (res.ok) {
-					// Accept common wrappers: agents | results | items | data | nested agents.results/data
-					if (Array.isArray(data)) return data as Agent[];
-					if (Array.isArray(data?.agents)) return data.agents as Agent[];
-					if (Array.isArray(data?.results)) return data.results as Agent[];
-					if (Array.isArray(data?.items)) return data.items as Agent[];
-					if (Array.isArray(data?.data)) return data.data as Agent[];
-					if (Array.isArray(data?.agents?.results)) return data.agents.results as Agent[];
-					if (Array.isArray(data?.agents?.data)) return data.agents.data as Agent[];
-					return [] as Agent[];
+					return Array.isArray(data) ? data : [];
 				}
-				// No fallback to legacy prompts: migration is now agent-only
 				return [];
 			} catch {
 				return [];

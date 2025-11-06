@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 
 import sys
 sys.path.append('..')
@@ -10,7 +10,7 @@ import schemas as schemas
 
 router = APIRouter()
 
-@router.get("/", response_model=schemas.ParticipantsResponse)
+@router.get("/", response_model=List[schemas.Participant])
 async def get_participants(
     is_guest: Optional[bool] = Query(None),
     db: Session = Depends(get_db)
@@ -22,9 +22,9 @@ async def get_participants(
         query = query.filter(models.Participant.is_guest == is_guest)
     
     participants = query.order_by(models.Participant.created_at.desc()).all()
-    return {"participants": participants}
+    return participants
 
-@router.get("/{participant_id}", response_model=schemas.ParticipantDetailResponse)
+@router.get("/{participant_id}", response_model=schemas.ParticipantWithAssignments)
 async def get_participant(participant_id: str, db: Session = Depends(get_db)):
     """Get a single participant with their agent assignments"""
     # Try by internal ID first
@@ -41,9 +41,9 @@ async def get_participant(participant_id: str, db: Session = Depends(get_db)):
     if not participant:
         raise HTTPException(status_code=404, detail="Participant not found")
     
-    return {"participant": participant}
+    return participant
 
-@router.post("/", response_model=schemas.ParticipantResponse, status_code=201)
+@router.post("/", response_model=schemas.Participant, status_code=201)
 async def create_participant(
     participant_data: schemas.ParticipantCreate,
     db: Session = Depends(get_db)
@@ -67,9 +67,9 @@ async def create_participant(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to create participant: {str(e)}")
     
-    return {"participant": participant}
+    return participant
 
-@router.patch("/{participant_id}", response_model=schemas.ParticipantResponse)
+@router.patch("/{participant_id}", response_model=schemas.Participant)
 async def update_participant(
     participant_id: str,
     participant_data: schemas.ParticipantUpdate,
@@ -94,7 +94,7 @@ async def update_participant(
     db.commit()
     db.refresh(participant)
     
-    return {"participant": participant}
+    return participant
 
 @router.delete("/{participant_id}")
 async def delete_participant(participant_id: str, db: Session = Depends(get_db)):
@@ -112,7 +112,7 @@ async def delete_participant(participant_id: str, db: Session = Depends(get_db))
     return {"message": "Participant deleted successfully", "success": True}
 
 # Get conversations for a specific participant
-@router.get("/{participant_id}/conversations")
+@router.get("/{participant_id}/conversations", response_model=List[schemas.ConversationLog])
 async def get_participant_conversations(
     participant_id: str,
     db: Session = Depends(get_db)
@@ -132,4 +132,4 @@ async def get_participant_conversations(
         models.ConversationLog.participant_id == participant.id
     ).order_by(models.ConversationLog.created_at.desc()).all()
     
-    return {"conversations": conversations}
+    return conversations

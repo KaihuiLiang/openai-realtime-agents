@@ -156,18 +156,6 @@ class User(UserBase):
 
 
 # --- Response models for new entities ---
-class ParticipantsResponse(BaseModel):
-    participants: List[Participant]
-
-class ParticipantResponse(BaseModel):
-    participant: Participant
-
-class AssignmentsResponse(BaseModel):
-    assignments: List[Assignment]
-
-class AssignmentResponse(BaseModel):
-    assignment: Assignment
-
 class UsersResponse(BaseModel):
     users: List[User]
 
@@ -176,13 +164,3 @@ class UserResponse(BaseModel):
 
 class ParticipantWithAssignments(Participant):
     assignments: List[Assignment] = []
-
-class ParticipantDetailResponse(BaseModel):
-    participant: ParticipantWithAssignments
-
-# --- Agent response models (alias for ExperimentPrompt with agent-centric naming) ---
-class AgentsResponse(BaseModel):
-    agents: List[ExperimentPrompt]
-
-class AgentResponse(BaseModel):
-    agent: ExperimentPrompt

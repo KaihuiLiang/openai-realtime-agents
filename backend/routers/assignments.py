@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 
 import sys
 sys.path.append('..')
@@ -10,7 +10,7 @@ import schemas as schemas
 
 router = APIRouter()
 
-@router.get("/", response_model=schemas.AssignmentsResponse)
+@router.get("/", response_model=List[schemas.Assignment])
 async def get_assignments(
     participant_id: Optional[str] = Query(None),
     experiment_prompt_id: Optional[str] = Query(None),
@@ -40,9 +40,9 @@ async def get_assignments(
         models.ParticipantAgentAssignment.created_at
     ).all()
     
-    return {"assignments": assignments}
+    return assignments
 
-@router.get("/{assignment_id}", response_model=schemas.AssignmentResponse)
+@router.get("/{assignment_id}", response_model=schemas.Assignment)
 async def get_assignment(assignment_id: str, db: Session = Depends(get_db)):
     """Get a single assignment by ID"""
     assignment = db.query(models.ParticipantAgentAssignment).filter(
@@ -52,9 +52,9 @@ async def get_assignment(assignment_id: str, db: Session = Depends(get_db)):
     if not assignment:
         raise HTTPException(status_code=404, detail="Assignment not found")
     
-    return {"assignment": assignment}
+    return assignment
 
-@router.post("/", response_model=schemas.AssignmentResponse, status_code=201)
+@router.post("/", response_model=schemas.Assignment, status_code=201)
 async def create_assignment(
     assignment_data: schemas.AssignmentCreate,
     db: Session = Depends(get_db)
@@ -91,9 +91,9 @@ async def create_assignment(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to create assignment: {str(e)}")
     
-    return {"assignment": assignment}
+    return assignment
 
-@router.patch("/{assignment_id}", response_model=schemas.AssignmentResponse)
+@router.patch("/{assignment_id}", response_model=schemas.Assignment)
 async def update_assignment(
     assignment_id: str,
     assignment_data: schemas.AssignmentUpdate,
@@ -114,7 +114,7 @@ async def update_assignment(
     db.commit()
     db.refresh(assignment)
     
-    return {"assignment": assignment}
+    return assignment
 
 @router.delete("/{assignment_id}")
 async def delete_assignment(assignment_id: str, db: Session = Depends(get_db)):
@@ -136,7 +136,7 @@ async def delete_assignment(assignment_id: str, db: Session = Depends(get_db)):
     return {"message": "Assignment deleted successfully", "success": True}
 
 # Bulk create assignments
-@router.post("/bulk")
+@router.post("/bulk", response_model=List[schemas.Assignment])
 async def create_bulk_assignments(
     assignments: list[schemas.AssignmentCreate],
     db: Session = Depends(get_db)
@@ -182,9 +182,4 @@ async def create_bulk_assignments(
     for assignment in created:
         db.refresh(assignment)
     
-    return {
-        "assignments": created,
-        "count": len(created),
-        "failed": failed,
-        "failed_count": len(failed)
-    }
+    return created

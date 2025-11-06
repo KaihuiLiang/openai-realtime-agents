@@ -6,14 +6,14 @@ async function getCounts() {
     fetch(`${base}/api/assignments/`, { next: { revalidate: 30 } }),
   ]);
   const [agents, participants, assignments] = await Promise.all([
-    agentsRes.json().catch(() => ({})),
-    participantsRes.json().catch(() => ({})),
-    assignmentsRes.json().catch(() => ({})),
+    agentsRes.json().catch(() => ([])),
+    participantsRes.json().catch(() => ([])),
+    assignmentsRes.json().catch(() => ([])),
   ]);
   return {
-    agents: agents?.agents?.length || agents?.length || 0,
-    participants: participants?.participants?.length || 0,
-    assignments: assignments?.assignments?.length || 0,
+    agents: Array.isArray(agents) ? agents.length : 0,
+    participants: Array.isArray(participants) ? participants.length : 0,
+    assignments: Array.isArray(assignments) ? assignments.length : 0,
   };
 }
 

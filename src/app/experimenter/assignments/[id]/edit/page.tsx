@@ -8,7 +8,8 @@ async function fetchAssignment(id: string): Promise<Assignment | null> {
     if (res.status === 404) return null;
     if (!res.ok) return null;
     const data = await res.json();
-    const a = (data?.assignment && typeof data.assignment === 'object') ? data.assignment : data;
+    // Backend now returns unwrapped object directly
+    const a = data;
     return {
       id: a.id,
       participant_id: a.participant_id,
@@ -29,7 +30,7 @@ async function fetchParticipants(): Promise<Participant[]> {
     const res = await fetch(`${base}/api/participants/`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data?.participants ?? []) as Participant[];
+    return Array.isArray(data) ? data : [];
   } catch {
     return [];
   }
@@ -41,7 +42,7 @@ async function fetchAgents(): Promise<Agent[]> {
     const res = await fetch(`${base}/api/agents/`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data?.agents ?? []) as Agent[];
+    return Array.isArray(data) ? data : [];
   } catch {
     return [];
   }

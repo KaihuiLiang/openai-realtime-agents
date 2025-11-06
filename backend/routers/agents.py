@@ -10,7 +10,7 @@ import schemas
 
 router = APIRouter()
 
-@router.get("/", response_model=schemas.AgentsResponse)
+@router.get("/", response_model=List[schemas.ExperimentPrompt])
 async def get_agents(
     agent_config: Optional[str] = Query(None),
     agent_name: Optional[str] = Query(None),
@@ -33,9 +33,9 @@ async def get_agents(
         query = query.filter(models.ExperimentPrompt.tags.overlap(tag_list))
     
     agents = query.order_by(models.ExperimentPrompt.updated_at.desc()).all()
-    return {"agents": agents}
+    return agents
 
-@router.get("/{agent_id}", response_model=schemas.AgentResponse)
+@router.get("/{agent_id}", response_model=schemas.ExperimentPrompt)
 async def get_agent(agent_id: str, db: Session = Depends(get_db)):
     """Get a single agent by ID"""
     agent = db.query(models.ExperimentPrompt).filter(
@@ -45,9 +45,9 @@ async def get_agent(agent_id: str, db: Session = Depends(get_db)):
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    return {"agent": agent}
+    return agent
 
-@router.post("/", response_model=schemas.AgentResponse, status_code=201)
+@router.post("/", response_model=schemas.ExperimentPrompt, status_code=201)
 async def create_agent(
     agent_data: schemas.ExperimentPromptCreate,
     db: Session = Depends(get_db)
@@ -67,9 +67,9 @@ async def create_agent(
     db.commit()
     db.refresh(agent)
     
-    return {"agent": agent}
+    return agent
 
-@router.patch("/{agent_id}", response_model=schemas.AgentResponse)
+@router.patch("/{agent_id}", response_model=schemas.ExperimentPrompt)
 async def update_agent(
     agent_id: str,
     agent_data: schemas.ExperimentPromptUpdate,
@@ -100,7 +100,7 @@ async def update_agent(
     db.commit()
     db.refresh(agent)
     
-    return {"agent": agent}
+    return agent
 
 @router.delete("/{agent_id}", response_model=schemas.MessageResponse)
 async def delete_agent(agent_id: str, db: Session = Depends(get_db)):

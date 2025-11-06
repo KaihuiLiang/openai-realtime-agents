@@ -17,7 +17,7 @@ async function getAssignments(): Promise<Assignment[]> {
   const base = process.env.BACKEND_URL || 'http://localhost:8000';
   const res = await fetch(`${base}/api/assignments/`, { next: { revalidate: 30 } });
   const data = await res.json();
-  return data.assignments ?? [];
+  return Array.isArray(data) ? data : [];
 }
 
 export default async function AssignmentsPage() {
@@ -26,7 +26,7 @@ export default async function AssignmentsPage() {
   const base = process.env.BACKEND_URL || 'http://localhost:8000';
   const participantsRes = await fetch(`${base}/api/participants/`, { next: { revalidate: 30 } });
   const participantsData = await participantsRes.json();
-  const participants = participantsData.participants ?? [];
+  const participants = Array.isArray(participantsData) ? participantsData : [];
   // Helper to get display name or external ID
   function getParticipantDisplay(id: string) {
     const p = participants.find((p: any) => p.id === id || p.participant_id === id);

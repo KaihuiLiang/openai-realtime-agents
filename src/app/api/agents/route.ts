@@ -7,16 +7,8 @@ export async function GET() {
     const res = await fetch(`${BACKEND_URL}/api/agents/`, { cache: 'no-store' });
     const data = await res.json().catch(() => ({}));
     if (res.ok) {
-      const d: any = data;
-      const agents = Array.isArray(d)
-        ? d
-        : Array.isArray(d?.agents) ? d.agents
-        : Array.isArray(d?.results) ? d.results
-        : Array.isArray(d?.items) ? d.items
-        : Array.isArray(d?.data) ? d.data
-        : Array.isArray(d?.agents?.results) ? d.agents.results
-        : Array.isArray(d?.agents?.data) ? d.agents.data
-        : [];
+      // Backend now returns direct array, but we keep wrapping for compatibility
+      const agents = Array.isArray(data) ? data : [];
       return NextResponse.json({ agents }, { status: 200 });
     }
     return NextResponse.json(data, { status: res.status });

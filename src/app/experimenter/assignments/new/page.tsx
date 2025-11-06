@@ -27,8 +27,8 @@ export default function NewAssignmentPage() {
         fetch(`/api/backend/agents`),
       ]);
   const [partData, promptData] = await Promise.all([partRes.json(), promptRes.json()]);
-      setParticipants(partData.participants ?? []);
-  setAgents(promptData.agents ?? []);
+      setParticipants(Array.isArray(partData) ? partData : (partData.participants ?? []));
+      setAgents(Array.isArray(promptData) ? promptData : (promptData.agents ?? []));
     })();
   }, []);
 
