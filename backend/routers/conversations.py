@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from typing import Optional
+from typing import Optional, List
 
 import sys
 sys.path.append('..')
@@ -11,7 +11,7 @@ import schemas
 
 router = APIRouter()
 
-@router.get("/", response_model=schemas.ConversationsResponse)
+@router.get("/", response_model=List[schemas.ConversationLog])
 async def get_conversations(
     experiment_id: Optional[str] = Query(None),
     agent_config: Optional[str] = Query(None),
@@ -30,7 +30,7 @@ async def get_conversations(
         models.ConversationLog.created_at.desc()
     ).limit(limit).all()
     
-    return {"conversations": conversations}
+    return conversations
 
 @router.get("/{conversation_id}", response_model=schemas.ConversationLog)
 async def get_conversation(conversation_id: str, db: Session = Depends(get_db)):
@@ -44,7 +44,7 @@ async def get_conversation(conversation_id: str, db: Session = Depends(get_db)):
     
     return conversation
 
-@router.post("/", response_model=schemas.ConversationResponse, status_code=201)
+@router.post("/", response_model=schemas.ConversationLog, status_code=201)
 async def create_conversation(
     conversation_data: schemas.ConversationLogCreate,
     db: Session = Depends(get_db)
@@ -91,7 +91,7 @@ async def create_conversation(
             
             db.commit()
     
-    return {"conversation": conversation}
+    return conversation
 
 @router.delete("/{conversation_id}", response_model=schemas.MessageResponse)
 async def delete_conversation(conversation_id: str, db: Session = Depends(get_db)):
