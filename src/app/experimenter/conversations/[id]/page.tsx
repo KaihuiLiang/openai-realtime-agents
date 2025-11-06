@@ -27,7 +27,7 @@ type Conversation = {
 async function getConversation(id: string): Promise<Conversation | null> {
   const base = process.env.BACKEND_URL || 'http://localhost:8000';
   try {
-    const res = await fetch(`${base}/api/conversations/${id}/`, { next: { revalidate: 30 } });
+  const res = await fetch(`${base}/api/conversations/${id}`, { next: { revalidate: 30 } });
     if (!res.ok) return null;
     return await res.json();
   } catch {
