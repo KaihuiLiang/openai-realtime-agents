@@ -1,11 +1,22 @@
 import Link from 'next/link';
 import type { Conversation } from '@/types/api';
 
+export const dynamic = 'force-dynamic';
+
+// Robust JSON parsing to handle non-JSON error bodies during prerender
+async function safeJson<T = any>(res: Response): Promise<T | null> {
+  try {
+    const text = await res.text();
+    if (!text) return null;
+    try { return JSON.parse(text) as T; } catch { return null; }
+  } catch { return null; }
+}
+
 async function getConversations(): Promise<Conversation[]> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/conversations`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
-    const data = await res.json();
+    const data = await safeJson(res);
     return Array.isArray(data) ? (data as Conversation[]) : [];
   } catch {
     return [];

@@ -2,18 +2,45 @@ import Link from 'next/link';
 import RowActions from './row-actions';
 import type { Assignment } from '@/types/api';
 
+// Robust JSON parsing to handle non-JSON error bodies (e.g., "Internal Server Error")
+async function safeJson<T = any>(res: Response): Promise<T | null> {
+  try {
+    const text = await res.text();
+    if (!text) return null;
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
 async function getAssignments(): Promise<Assignment[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/assignments`, { next: { revalidate: 30 } });
-  const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/assignments`, { next: { revalidate: 30 } });
+    if (!res.ok) return [];
+    const data = await safeJson(res);
+    return Array.isArray(data) ? (data as Assignment[]) : [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function AssignmentsPage() {
   const assignments = await getAssignments();
   // Fetch participants to map foreign/external IDs
-  const participantsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/participants`, { next: { revalidate: 30 } });
-  const participantsData = await participantsRes.json();
-  const participants = Array.isArray(participantsData) ? participantsData : [];
+  let participants: any[] = [];
+  try {
+    const participantsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/participants`, { next: { revalidate: 30 } });
+    if (participantsRes.ok) {
+      const participantsData = await safeJson(participantsRes);
+      participants = Array.isArray(participantsData) ? participantsData : [];
+    }
+  } catch {
+    participants = [];
+  }
   // Helper to get display name or external ID
   function getParticipantDisplay(id: string) {
     const p = participants.find((p: any) => p.id === id || p.participant_id === id);

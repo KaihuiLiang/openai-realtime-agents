@@ -27,6 +27,33 @@ There are two main patterns demonstrated:
 - Open your browser to [http://localhost:3000](http://localhost:3000). It should default to the `chatSupervisor` Agent Config.
 - You can change examples via the "Scenario" dropdown in the top right.
 
+## API Type Generation Workflow
+
+This project uses automatic TypeScript type generation from the FastAPI OpenAPI schema.
+
+### Generated Files
+
+- `src/types/api.generated.ts` – Raw output from `openapi-typescript` (do not edit manually)
+- `src/types/api.ts` – Friendly re-exports and small overrides (safe to edit)
+- `src/types/api.manual.ts.bak` – Previous manual definitions kept for reference
+
+### Regenerating Types
+
+Ensure backend is running locally at `http://localhost:8000`, then run:
+
+```bash
+npm run generate:types
+```
+
+### Custom Overrides
+
+Some backend fields (e.g. `transcript: Dict[str, Any]`) are too generic and appear as `Record<string, never>` in the auto output. We selectively override in `api.ts` using `Omit<...> & { ... }` for better DX while staying close to backend reality.
+
+### Tips
+
+- Consider wiring a `prebuild` step to auto-run generation when backend is available
+- After backend schema changes, regenerate and run `npm run build`
+
 # Agentic Pattern 1: Chat-Supervisor
 
 This is demonstrated in the [chatSupervisor](src/app/agentConfigs/chatSupervisor/index.ts) Agent Config. The chat agent uses the realtime model to converse with the user and handle basic tasks, like greeting the user, casual conversation, and collecting information, and a more intelligent, text-based supervisor model (e.g. `gpt-4.1`) is used extensively to handle tool calls and more challenging responses. You can control the decision boundary by "opting in" specific tasks to the chat agent as desired.

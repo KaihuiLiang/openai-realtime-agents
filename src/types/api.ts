@@ -1,229 +1,72 @@
 /**
- * API Type Definitions
+ * API Types - Friendly exports from auto-generated OpenAPI types
  * 
- * These types mirror the Pydantic schemas from backend/schemas.py
- * to ensure type safety across frontend and backend.
+ * This file re-exports types from api.generated.ts with more convenient names.
  * 
- * When backend schemas change, update these types accordingly.
+ * To regenerate types from backend:
+ *   npm run generate:types
+ * 
+ * The generated file (api.generated.ts) should not be edited manually.
  */
 
-// ============================================================================
-// Common Types
-// ============================================================================
-
-export interface Message {
-  role: string;
-  content: string;
-  timestamp: string;
-}
-
-export interface Transcript {
-  messages: Message[];
-}
+import type { components } from './api.generated';
 
 // ============================================================================
-// ExperimentPrompt (Agent) Schemas
+// Schema Types (from components.schemas)
 // ============================================================================
 
-export interface ExperimentPrompt {
-  id: string;
-  name: string;
-  agent_config: string;
-  agent_name: string;
-  system_prompt: string;
-  instructions: string | null;
-  temperature: number;
-  max_tokens: number | null;
-  voice: string | null;
-  description: string | null;
-  tags: string[];
-  is_active: boolean;
-  success_rate: number | null;
-  avg_duration: number | null;
-  total_runs: number;
-  created_at: string;
-  updated_at: string | null;
-}
+export type Assignment = components['schemas']['Assignment'];
+export type AssignmentCreate = components['schemas']['AssignmentCreate'];
+export type AssignmentUpdate = components['schemas']['AssignmentUpdate'];
 
-export interface ExperimentPromptCreate {
-  name: string;
-  agent_config: string;
-  agent_name: string;
-  system_prompt: string;
-  instructions?: string | null;
-  temperature?: number;
-  max_tokens?: number | null;
-  voice?: string | null;
-  description?: string | null;
-  tags?: string[];
-  is_active?: boolean;
-}
+// ConversationLog with proper transcript type (backend uses Dict[str, Any])
+export type ConversationLog = Omit<components['schemas']['ConversationLog'], 'transcript'> & {
+  transcript: {
+    messages?: Array<{
+      role: string;
+      content: string;
+      timestamp?: string;
+    }>;
+    [key: string]: any;
+  };
+};
+export type ConversationLogCreate = Omit<components['schemas']['ConversationLogCreate'], 'transcript'> & {
+  transcript: Record<string, any>;
+};
 
-export interface ExperimentPromptUpdate {
-  name?: string;
-  system_prompt?: string;
-  instructions?: string | null;
-  temperature?: number;
-  max_tokens?: number | null;
-  voice?: string | null;
-  description?: string | null;
-  tags?: string[];
-  is_active?: boolean;
-  success_rate?: number | null;
-  avg_duration?: number | null;
-}
+export type ExperimentPrompt = components['schemas']['ExperimentPrompt'];
+export type ExperimentPromptCreate = components['schemas']['ExperimentPromptCreate'];
+export type ExperimentPromptUpdate = components['schemas']['ExperimentPromptUpdate'];
 
-// Alias for backward compatibility
+export type MessageResponse = components['schemas']['MessageResponse'];
+
+export type Participant = components['schemas']['Participant'];
+export type ParticipantCreate = components['schemas']['ParticipantCreate'];
+export type ParticipantUpdate = components['schemas']['ParticipantUpdate'];
+export type ParticipantWithAssignments = components['schemas']['ParticipantWithAssignments'];
+
+
+// ============================================================================
+// Convenient Aliases
+// ============================================================================
+
 export type Agent = ExperimentPrompt;
 export type AgentCreate = ExperimentPromptCreate;
 export type AgentUpdate = ExperimentPromptUpdate;
 
-// ============================================================================
-// ConversationLog Schemas
-// ============================================================================
-
-export interface ConversationLog {
-  id: string;
-  session_id: string;
-  agent_config: string;
-  agent_name: string;
-  transcript: Record<string, any>;  // More flexible - backend uses Dict[str, Any]
-  duration: number;
-  turn_count: number;
-  experiment_id: string | null;
-  participant_id: string | null;
-  user_satisfaction: number | null;
-  task_completed: boolean | null;
-  extra_metadata: Record<string, any> | null;
-  created_at: string;
-}
-
-export interface ConversationLogCreate {
-  session_id: string;
-  agent_config: string;
-  agent_name: string;
-  transcript: Record<string, any>;  // More flexible - backend uses Dict[str, Any]
-  duration: number;
-  turn_count: number;
-  experiment_id?: string | null;
-  participant_id?: string | null;
-  user_satisfaction?: number | null;
-  task_completed?: boolean | null;
-  extra_metadata?: Record<string, any> | null;
-}
-
-// Alias for backward compatibility
 export type Conversation = ConversationLog;
 export type ConversationCreate = ConversationLogCreate;
 
 // ============================================================================
-// Participant Schemas
-// ============================================================================
-
-export interface Participant {
-  id: string;
-  participant_id: string;
-  name: string | null;
-  email: string | null;
-  is_guest: boolean;
-  extra_metadata: Record<string, any> | null;
-  created_at: string;
-  updated_at: string | null;
-}
-
-export interface ParticipantCreate {
-  participant_id: string;
-  name?: string | null;
-  email?: string | null;
-  is_guest?: boolean;
-  extra_metadata?: Record<string, any> | null;
-}
-
-export interface ParticipantUpdate {
-  name?: string | null;
-  email?: string | null;
-  extra_metadata?: Record<string, any> | null;
-}
-
-export interface ParticipantWithAssignments extends Participant {
-  assignments: Assignment[];
-}
-
-// ============================================================================
-// ParticipantAgentAssignment Schemas
-// ============================================================================
-
-export interface Assignment {
-  id: string;
-  participant_id: string;
-  experiment_prompt_id: string;
-  agent_config: string;
-  agent_name: string;
-  is_active: boolean;
-  completed: boolean;
-  order: number;
-  notes: string | null;
-  created_at: string;
-}
-
-export interface AssignmentCreate {
-  participant_id: string;
-  experiment_prompt_id: string;
-  agent_config: string;
-  agent_name: string;
-  is_active?: boolean;
-  completed?: boolean;
-  order?: number;
-  notes?: string | null;
-}
-
-export interface AssignmentUpdate {
-  is_active?: boolean;
-  completed?: boolean;
-  order?: number;
-  notes?: string | null;
-}
-
-// ============================================================================
-// User (Experimenter) Schemas
-// ============================================================================
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-  is_active: boolean;
-  created_at: string;
-  last_login: string | null;
-}
-
-export interface UserCreate {
-  username: string;
-  email: string;
-  password: string;
-  role?: string;
-}
-
-export interface UserUpdate {
-  email?: string;
-  role?: string;
-  is_active?: boolean;
-}
-
-// ============================================================================
-// Response Models
-// ============================================================================
-
-export interface MessageResponse {
-  message: string;
-  success: boolean;
-}
-
-// ============================================================================
-// API Error Response
+// Common Helper Types
 // ============================================================================
 
 export interface APIError {
   detail: string;
 }
+
+// ============================================================================
+// Re-export generated types for advanced usage
+// ============================================================================
+
+export type { paths, components, operations } from './api.generated';
