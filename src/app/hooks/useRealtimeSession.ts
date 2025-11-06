@@ -148,14 +148,22 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
       const realtimeModel = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_REALTIME_MODEL as string | undefined) : undefined) || 'gpt-4o-realtime-preview';
 
       sessionRef.current = new RealtimeSession(rootAgent, {
-        transport: new OpenAIRealtimeWebRTC({
-          audioElement,
-          // Set preferred codec before offer creation
-          changePeerConnection: async (pc: RTCPeerConnection) => {
-            applyCodec(pc);
-            return pc;
-          },
-        }),
+        transport: (typeof window !== 'undefined' && (window as any)?.NEXT_PUBLIC_REALTIME_DEBUG === '1')
+          ? new (await import('../lib/DebugRealtimeTransport')).DebugRealtimeWebRTC({
+              audioElement,
+              changePeerConnection: async (pc: RTCPeerConnection) => {
+                applyCodec(pc);
+                return pc;
+              },
+            })
+          : new OpenAIRealtimeWebRTC({
+              audioElement,
+              // Set preferred codec before offer creation
+              changePeerConnection: async (pc: RTCPeerConnection) => {
+                applyCodec(pc);
+                return pc;
+              },
+            }),
         model: realtimeModel,
         config: {
           inputAudioTranscription: {

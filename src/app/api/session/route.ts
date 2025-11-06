@@ -14,6 +14,10 @@ export async function GET() {
         },
         body: JSON.stringify({
           model,
+          voice: "ash",
+          modalities: ["text", "audio"],
+          input_audio_format: "pcm16",
+          output_audio_format: "pcm16",
         }),
       }
     );
