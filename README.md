@@ -59,6 +59,19 @@ This will poll the OpenAPI endpoint every 3 seconds and regenerate types when th
 WATCH_INTERVAL=5000 npm run watch:types  # Check every 5 seconds
 ```
 
+### Pre-commit Hook
+
+A pre-commit hook is automatically installed that checks for backend schema changes before each commit:
+
+- If backend is available, it regenerates types and includes them in the commit
+- If backend is unavailable, the commit proceeds without error
+- This ensures your types are always in sync when committing
+
+To manually trigger what the hook does:
+```bash
+node scripts/pre-commit-types.mjs
+```
+
 ### Custom Overrides
 
 Some backend fields (e.g. `transcript: Dict[str, Any]`) are too generic and appear as `Record<string, never>` in the auto output. We selectively override in `api.ts` using `Omit<...> & { ... }` for better DX while staying close to backend reality.
@@ -67,7 +80,8 @@ Some backend fields (e.g. `transcript: Dict[str, Any]`) are too generic and appe
 
 - The `prebuild` script runs automatically before builds to sync types if backend is available
 - Use `npm run watch:types` during development for automatic type updates
-- After backend schema changes, regenerate and run `npm run build`
+- Pre-commit hook ensures types are always in sync when committing
+- Use `SKIP_TYPEGEN=1` in CI environments where backend is unavailable
 
 # Agentic Pattern 1: Chat-Supervisor
 
