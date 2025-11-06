@@ -23,12 +23,11 @@ type Conversation = {
 };
 
 async function getConversations(): Promise<Conversation[]> {
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
   try {
-    const res = await fetch(`${base}/api/conversations/`, { next: { revalidate: 30 } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/conversations`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     const data = await res.json();
-    return data as Conversation[];
+    return Array.isArray(data) ? (data as Conversation[]) : [];
   } catch {
     return [];
   }

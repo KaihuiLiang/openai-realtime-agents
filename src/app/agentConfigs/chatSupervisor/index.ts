@@ -1,4 +1,5 @@
 import { RealtimeAgent } from '@openai/agents/realtime'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getNextResponseFromSupervisor } from './supervisorAgent';
 
 export const chatAgent = new RealtimeAgent({

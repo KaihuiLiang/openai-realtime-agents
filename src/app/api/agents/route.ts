@@ -7,9 +7,9 @@ export async function GET() {
     const res = await fetch(`${BACKEND_URL}/api/agents/`, { cache: 'no-store' });
     const data = await res.json().catch(() => ({}));
     if (res.ok) {
-      // Backend now returns direct array, but we keep wrapping for compatibility
+      // Pass through direct array for strict consistency
       const agents = Array.isArray(data) ? data : [];
-      return NextResponse.json({ agents }, { status: 200 });
+      return NextResponse.json(agents, { status: 200 });
     }
     return NextResponse.json(data, { status: res.status });
   } catch (error) {

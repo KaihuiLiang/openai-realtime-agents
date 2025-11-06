@@ -12,20 +12,13 @@ type Agent = {
 };
 
 async function getAgents(): Promise<Agent[]> {
-	const base = process.env.BACKEND_URL || 'http://localhost:8000';
-			try {
-				// Backend now returns direct array
-				const res = await fetch(`${base}/api/agents/`, { next: { revalidate: 30 } });
-				const text = await res.text();
-				let data: any = {};
-				try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
-				if (res.ok) {
-					return Array.isArray(data) ? data : [];
-				}
-				return [];
-			} catch {
-				return [];
-			}
+	try {
+		const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/agents`, { next: { revalidate: 30 } });
+		const data = await res.json();
+		return Array.isArray(data) ? data : [];
+	} catch {
+		return [];
+	}
 }
 
 export default async function AgentsPage() {

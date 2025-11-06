@@ -14,8 +14,7 @@ type Assignment = {
 };
 
 async function getAssignments(): Promise<Assignment[]> {
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
-  const res = await fetch(`${base}/api/assignments/`, { next: { revalidate: 30 } });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/assignments`, { next: { revalidate: 30 } });
   const data = await res.json();
   return Array.isArray(data) ? data : [];
 }
@@ -23,8 +22,7 @@ async function getAssignments(): Promise<Assignment[]> {
 export default async function AssignmentsPage() {
   const assignments = await getAssignments();
   // Fetch participants to map foreign/external IDs
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
-  const participantsRes = await fetch(`${base}/api/participants/`, { next: { revalidate: 30 } });
+  const participantsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/participants`, { next: { revalidate: 30 } });
   const participantsData = await participantsRes.json();
   const participants = Array.isArray(participantsData) ? participantsData : [];
   // Helper to get display name or external ID

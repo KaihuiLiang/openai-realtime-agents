@@ -55,6 +55,7 @@ function App() {
   // hook (configured in `useRealtimeSession`) to set the preferred codec
   // before the offer/answer negotiation.
   // ---------------------------------------------------------------------
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const urlCodec = searchParams.get("codec") || "opus";
 
   // Agents SDK doesn't currently support codec selection so it is now forced 
@@ -328,6 +329,7 @@ function App() {
     setUserText("");
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleTalkButtonDown = () => {
     if (sessionStatus !== 'CONNECTED') return;
     interrupt();
@@ -338,6 +340,7 @@ function App() {
     // No placeholder; we'll rely on server transcript once ready.
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleTalkButtonUp = () => {
     if (sessionStatus !== 'CONNECTED' || !isPTTUserSpeaking)
       return;
@@ -375,6 +378,7 @@ function App() {
   };
 
   // Because we need a new connection, refresh the page when codec changes
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleCodecChange = (newCodec: string) => {
     const url = new URL(window.location.toString());
     url.searchParams.set("codec", newCodec);

@@ -160,10 +160,10 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
             language: 'en',
             // prompt: "Transcribe in English only. Ignore non-English words."
           },
-        },
-        turnDetection: {
-          type: "server_vad",
-          silenceDurationMs: 2200,   
+          turnDetection: {
+            type: "server_vad",
+            silenceDurationMs: 2200,   
+          },
         },
         outputGuardrails: outputGuardrails ?? [],
         context: extraContext ?? {},

@@ -2,9 +2,9 @@ import EditAssignmentForm, { Assignment, Participant, Agent } from './EditAssign
 import { notFound } from 'next/navigation';
 
 async function fetchAssignment(id: string): Promise<Assignment | null> {
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   try {
-    const res = await fetch(`${base}/api/assignments/${id}/`, { cache: 'no-store' });
+    const res = await fetch(`${base}/api/backend/assignments/${id}`, { cache: 'no-store' });
     if (res.status === 404) return null;
     if (!res.ok) return null;
     const data = await res.json();
@@ -25,9 +25,9 @@ async function fetchAssignment(id: string): Promise<Assignment | null> {
 }
 
 async function fetchParticipants(): Promise<Participant[]> {
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   try {
-    const res = await fetch(`${base}/api/participants/`, { cache: 'no-store' });
+    const res = await fetch(`${base}/api/backend/participants`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
@@ -37,9 +37,9 @@ async function fetchParticipants(): Promise<Participant[]> {
 }
 
 async function fetchAgents(): Promise<Agent[]> {
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   try {
-    const res = await fetch(`${base}/api/agents/`, { cache: 'no-store' });
+    const res = await fetch(`${base}/api/backend/agents`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];

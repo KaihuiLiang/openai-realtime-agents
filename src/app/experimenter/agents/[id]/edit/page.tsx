@@ -2,13 +2,11 @@ import EditAgentForm, { Agent } from './EditAgentForm';
 import { notFound } from 'next/navigation';
 
 async function fetchAgent(id: string): Promise<Agent | null> {
-	const base = process.env.BACKEND_URL || 'http://localhost:8000';
 	try {
-		const res = await fetch(`${base}/api/agents/${id}/`, { cache: 'no-store' });
+		const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/agents/${id}`, { cache: 'no-store' });
 		if (res.status === 404) return null;
 		if (!res.ok) return null;
-		const data = await res.json();
-		const agent = (data?.agent && typeof data.agent === 'object') ? data.agent : data;
+		const agent = await res.json();
 		return {
 			id: agent.id,
 			name: agent.name ?? '',
