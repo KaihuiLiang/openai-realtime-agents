@@ -14,6 +14,7 @@ export default function ExperimenterLayout({ children }: { children: React.React
           <NavLink href="/experimenter/agents">Agents</NavLink>
           <NavLink href="/experimenter/participants">Participants</NavLink>
           <NavLink href="/experimenter/assignments">Assignments</NavLink>
+          <NavLink href="/experimenter/conversations">Conversations</NavLink>
         </nav>
       </aside>
       <main className="p-8">{children}</main>
