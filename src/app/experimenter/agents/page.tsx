@@ -1,15 +1,6 @@
 import Link from 'next/link';
 import RowActions from './row-actions';
-// Server-side can call backend directly; avoid relying on local API route path
-
-type Agent = {
-	id: string;
-	name: string;
-	agent_config: string;
-	agent_name: string;
-	is_active: boolean;
-	updated_at?: string | null;
-};
+import type { Agent } from '@/types/api';
 
 async function getAgents(): Promise<Agent[]> {
 	try {

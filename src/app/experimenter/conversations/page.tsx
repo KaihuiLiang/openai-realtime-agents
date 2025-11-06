@@ -1,26 +1,5 @@
 import Link from 'next/link';
-
-type Message = {
-  role: string;
-  content: string;
-  timestamp: string;
-};
-
-type Conversation = {
-  id: string;
-  session_id: string;
-  agent_config: string;
-  agent_name: string;
-  transcript: {
-    messages: Message[];
-  };
-  duration: number;
-  turn_count: number;
-  participant_id: string | null;
-  created_at: string;
-  user_satisfaction: number | null;
-  task_completed: boolean | null;
-};
+import type { Conversation } from '@/types/api';
 
 async function getConversations(): Promise<Conversation[]> {
   try {

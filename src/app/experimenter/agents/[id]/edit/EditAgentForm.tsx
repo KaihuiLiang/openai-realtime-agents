@@ -1,17 +1,9 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Agent } from '@/types/api';
 
-export type Agent = {
-  id: string;
-  name: string;
-  agent_config: string;
-  agent_name: string;
-  system_prompt: string;
-  instructions?: string | null;
-  temperature?: number | null;
-  is_active: boolean;
-};
+export type { Agent };
 
 export default function EditAgentForm({ initial }: { initial: Agent }) {
   const router = useRouter();

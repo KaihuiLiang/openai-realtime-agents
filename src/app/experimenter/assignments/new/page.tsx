@@ -1,11 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-// Using Next.js API proxy routes to avoid CORS
-
-type Participant = { id: string; participant_id: string; name?: string | null };
-type Agent = { id: string; name?: string; agent_config: string; agent_name: string };
+import type { Participant, Agent } from '@/types/api';
 
 export default function NewAssignmentPage() {
   const router = useRouter();

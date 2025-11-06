@@ -1,18 +1,9 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Participant, Agent, Assignment } from '@/types/api';
 
-export type Participant = { id: string; participant_id: string; name?: string | null };
-export type Agent = { id: string; name?: string; agent_config: string; agent_name: string };
-export type Assignment = {
-  id: string;
-  participant_id: string;
-  experiment_prompt_id: string;
-  agent_config: string;
-  agent_name: string;
-  is_active: boolean;
-  order: number;
-};
+export type { Participant, Agent, Assignment };
 
 export default function EditAssignmentForm({
   initial,

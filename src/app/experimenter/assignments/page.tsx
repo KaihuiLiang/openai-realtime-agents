@@ -1,17 +1,6 @@
 import Link from 'next/link';
 import RowActions from './row-actions';
-
-type Assignment = {
-  id: string;
-  participant_id: string;
-  experiment_prompt_id: string;
-  agent_config: string;
-  agent_name: string;
-  is_active: boolean;
-  completed: boolean;
-  order: number;
-  created_at: string;
-};
+import type { Assignment } from '@/types/api';
 
 async function getAssignments(): Promise<Assignment[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/assignments`, { next: { revalidate: 30 } });

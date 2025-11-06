@@ -1,14 +1,6 @@
 import Link from 'next/link';
 import RowActions from './row-actions';
-
-type Participant = {
-  id: string;
-  participant_id: string;
-  name?: string | null;
-  email?: string | null;
-  is_guest: boolean;
-  created_at: string;
-};
+import type { Participant } from '@/types/api';
 
 async function getParticipants(): Promise<Participant[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/participants`, { next: { revalidate: 30 } });
