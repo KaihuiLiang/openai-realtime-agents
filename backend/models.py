@@ -7,8 +7,8 @@ import uuid
 def generate_uuid():
     return str(uuid.uuid4())
 
-class ExperimentPrompt(Base):
-    __tablename__ = "experiment_prompts"
+class Agent(Base):
+    __tablename__ = "agents"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False, index=True)
@@ -19,7 +19,7 @@ class ExperimentPrompt(Base):
     system_prompt = Column(Text, nullable=False)
     instructions = Column(Text, nullable=True)
     
-    # Experiment parameters
+    # Agent parameters
     temperature = Column(Float, default=0.8)
     max_tokens = Column(Integer, nullable=True)
     voice = Column(String, nullable=True)
@@ -29,7 +29,7 @@ class ExperimentPrompt(Base):
     tags = Column(ARRAY(String), default=list)
     is_active = Column(Boolean, default=False, index=True)
     
-    # Experiment results tracking
+    # Performance tracking
     success_rate = Column(Float, nullable=True)
     avg_duration = Column(Float, nullable=True)
     total_runs = Column(Integer, default=0)
@@ -38,14 +38,14 @@ class ExperimentPrompt(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationship
-    conversations = relationship("ConversationLog", back_populates="experiment")
+    conversations = relationship("ConversationLog", back_populates="agent")
 
 class ConversationLog(Base):
     __tablename__ = "conversation_logs"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    experiment_id = Column(String, ForeignKey("experiment_prompts.id", ondelete="SET NULL"), nullable=True, index=True)
-    participant_id = Column(String, ForeignKey("participants.id", ondelete="SET NULL"), nullable=True, index=True)  # NEW: Link to participant
+    agent_id = Column(String, ForeignKey("agents.id", ondelete="SET NULL"), nullable=True, index=True)
+    participant_id = Column(String, ForeignKey("participants.id", ondelete="SET NULL"), nullable=True, index=True)
     
     session_id = Column(String, nullable=False, index=True)
     agent_config = Column(String, nullable=False, index=True)
@@ -65,8 +65,8 @@ class ConversationLog(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     
     # Relationships
-    experiment = relationship("ExperimentPrompt", back_populates="conversations")
-    participant = relationship("Participant")  # NEW
+    agent = relationship("Agent", back_populates="conversations")
+    participant = relationship("Participant")
 
 class Participant(Base):
     __tablename__ = "participants"
@@ -95,7 +95,7 @@ class ParticipantAgentAssignment(Base):
     
     id = Column(String, primary_key=True, default=generate_uuid)
     participant_id = Column(String, ForeignKey("participants.id", ondelete="CASCADE"), nullable=False, index=True)
-    experiment_prompt_id = Column(String, ForeignKey("experiment_prompts.id", ondelete="CASCADE"), nullable=False, index=True)
+    agent_id = Column(String, ForeignKey("agents.id", ondelete="CASCADE"), nullable=False, index=True)
     
     # Assignment config
     agent_config = Column(String, nullable=False)  # e.g., "customerServiceRetail"
@@ -115,7 +115,7 @@ class ParticipantAgentAssignment(Base):
     
     # Relationships
     participant = relationship("Participant", back_populates="assignments")
-    experiment_prompt = relationship("ExperimentPrompt")
+    agent = relationship("Agent")
 
 class User(Base):
     __tablename__ = "users"

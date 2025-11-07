@@ -34,9 +34,9 @@ export type ConversationLogCreate = Omit<components['schemas']['ConversationLogC
   transcript: Record<string, any>;
 };
 
-export type ExperimentPrompt = components['schemas']['ExperimentPrompt'];
-export type ExperimentPromptCreate = components['schemas']['ExperimentPromptCreate'];
-export type ExperimentPromptUpdate = components['schemas']['ExperimentPromptUpdate'];
+export type Agent = components['schemas']['Agent'];
+export type AgentCreate = components['schemas']['AgentCreate'];
+export type AgentUpdate = components['schemas']['AgentUpdate'];
 
 export type MessageResponse = components['schemas']['MessageResponse'];
 
@@ -50,9 +50,10 @@ export type ParticipantWithAssignments = components['schemas']['ParticipantWithA
 // Convenient Aliases
 // ============================================================================
 
-export type Agent = ExperimentPrompt;
-export type AgentCreate = ExperimentPromptCreate;
-export type AgentUpdate = ExperimentPromptUpdate;
+// Legacy aliases for backwards compatibility (deprecated, use Agent types directly)
+export type ExperimentPrompt = Agent;
+export type ExperimentPromptCreate = AgentCreate;
+export type ExperimentPromptUpdate = AgentUpdate;
 
 export type Conversation = ConversationLog;
 export type ConversationCreate = ConversationLogCreate;

@@ -9,7 +9,7 @@ export default function NewAssignmentPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [form, setForm] = useState({
     participant_id: '',
-    experiment_prompt_id: '',
+    agent_id: '',
     is_active: true,
     order: 0,
   });
@@ -39,12 +39,12 @@ export default function NewAssignmentPage() {
     setSubmitting(true);
     setError(null);
     try {
-  const selectedAgent = agents.find((agent) => agent.id === form.experiment_prompt_id);
+  const selectedAgent = agents.find((agent) => agent.id === form.agent_id);
   if (!selectedAgent) throw new Error('Agent not selected');
 
       const body = {
         participant_id: form.participant_id,
-        experiment_prompt_id: form.experiment_prompt_id,
+        agent_id: form.agent_id,
   agent_config: selectedAgent.agent_config,
   agent_name: selectedAgent.agent_name,
         is_active: form.is_active,
@@ -101,8 +101,8 @@ export default function NewAssignmentPage() {
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-2">Agent</label>
           <select 
-            name="experiment_prompt_id" 
-            value={form.experiment_prompt_id} 
+            name="agent_id" 
+            value={form.agent_id} 
             onChange={handleChange} 
             className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all outline-none bg-white" 
             required

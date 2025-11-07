@@ -58,8 +58,8 @@ async def create_conversation(
     
     # Update experiment statistics if linked
     if conversation.experiment_id:
-        experiment = db.query(models.ExperimentPrompt).filter(
-            models.ExperimentPrompt.id == conversation.experiment_id
+        experiment = db.query(models.Agent).filter(
+            models.Agent.id == conversation.experiment_id
         ).first()
         
         if experiment:

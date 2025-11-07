@@ -5,7 +5,7 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(`${BACKEND_URL}/api/assignments/`);
-    // Forward all search params (e.g., experiment_prompt_id, participant_id)
+    // Forward all search params (e.g., agent_id, participant_id)
     request.nextUrl.searchParams.forEach((value, key) => {
       url.searchParams.set(key, value);
     });

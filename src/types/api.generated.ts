@@ -348,10 +348,120 @@ export type paths = {
 export type webhooks = Record<string, never>;
 export type components = {
     schemas: {
+        /** Agent */
+        Agent: {
+            /** Agent Config */
+            agent_config: string;
+            /** Agent Name */
+            agent_name: string;
+            /** Avg Duration */
+            avg_duration?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Description */
+            description?: string | null;
+            /** Id */
+            id: string;
+            /** Instructions */
+            instructions?: string | null;
+            /**
+             * Is Active
+             * @default false
+             */
+            is_active: boolean;
+            /** Max Tokens */
+            max_tokens?: number | null;
+            /** Name */
+            name: string;
+            /** Success Rate */
+            success_rate?: number | null;
+            /** System Prompt */
+            system_prompt: string;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /**
+             * Temperature
+             * @default 0.8
+             */
+            temperature: number | null;
+            /** Total Runs */
+            total_runs: number;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Voice */
+            voice?: string | null;
+        };
+        /** AgentCreate */
+        AgentCreate: {
+            /** Agent Config */
+            agent_config: string;
+            /** Agent Name */
+            agent_name: string;
+            /** Description */
+            description?: string | null;
+            /** Instructions */
+            instructions?: string | null;
+            /**
+             * Is Active
+             * @default false
+             */
+            is_active: boolean;
+            /** Max Tokens */
+            max_tokens?: number | null;
+            /** Name */
+            name: string;
+            /** System Prompt */
+            system_prompt: string;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+            /**
+             * Temperature
+             * @default 0.8
+             */
+            temperature: number | null;
+            /** Voice */
+            voice?: string | null;
+        };
+        /** AgentUpdate */
+        AgentUpdate: {
+            /** Avg Duration */
+            avg_duration?: number | null;
+            /** Description */
+            description?: string | null;
+            /** Instructions */
+            instructions?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Max Tokens */
+            max_tokens?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Success Rate */
+            success_rate?: number | null;
+            /** System Prompt */
+            system_prompt?: string | null;
+            /** Tags */
+            tags?: string[] | null;
+            /** Temperature */
+            temperature?: number | null;
+            /** Voice */
+            voice?: string | null;
+        };
         /** Assignment */
         Assignment: {
             /** Agent Config */
             agent_config: string;
+            /** Agent Id */
+            agent_id: string;
             /** Agent Name */
             agent_name: string;
             /**
@@ -364,8 +474,6 @@ export type components = {
              * Format: date-time
              */
             created_at: string;
-            /** Experiment Prompt Id */
-            experiment_prompt_id: string;
             /** Id */
             id: string;
             /**
@@ -387,6 +495,8 @@ export type components = {
         AssignmentCreate: {
             /** Agent Config */
             agent_config: string;
+            /** Agent Id */
+            agent_id: string;
             /** Agent Name */
             agent_name: string;
             /**
@@ -394,8 +504,6 @@ export type components = {
              * @default false
              */
             completed: boolean;
-            /** Experiment Prompt Id */
-            experiment_prompt_id: string;
             /**
              * Is Active
              * @default true
@@ -483,114 +591,6 @@ export type components = {
             turn_count: number;
             /** User Satisfaction */
             user_satisfaction?: number | null;
-        };
-        /** ExperimentPrompt */
-        ExperimentPrompt: {
-            /** Agent Config */
-            agent_config: string;
-            /** Agent Name */
-            agent_name: string;
-            /** Avg Duration */
-            avg_duration?: number | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Description */
-            description?: string | null;
-            /** Id */
-            id: string;
-            /** Instructions */
-            instructions?: string | null;
-            /**
-             * Is Active
-             * @default false
-             */
-            is_active: boolean;
-            /** Max Tokens */
-            max_tokens?: number | null;
-            /** Name */
-            name: string;
-            /** Success Rate */
-            success_rate?: number | null;
-            /** System Prompt */
-            system_prompt: string;
-            /**
-             * Tags
-             * @default []
-             */
-            tags: string[];
-            /**
-             * Temperature
-             * @default 0.8
-             */
-            temperature: number | null;
-            /** Total Runs */
-            total_runs: number;
-            /** Updated At */
-            updated_at?: string | null;
-            /** Voice */
-            voice?: string | null;
-        };
-        /** ExperimentPromptCreate */
-        ExperimentPromptCreate: {
-            /** Agent Config */
-            agent_config: string;
-            /** Agent Name */
-            agent_name: string;
-            /** Description */
-            description?: string | null;
-            /** Instructions */
-            instructions?: string | null;
-            /**
-             * Is Active
-             * @default false
-             */
-            is_active: boolean;
-            /** Max Tokens */
-            max_tokens?: number | null;
-            /** Name */
-            name: string;
-            /** System Prompt */
-            system_prompt: string;
-            /**
-             * Tags
-             * @default []
-             */
-            tags: string[];
-            /**
-             * Temperature
-             * @default 0.8
-             */
-            temperature: number | null;
-            /** Voice */
-            voice?: string | null;
-        };
-        /** ExperimentPromptUpdate */
-        ExperimentPromptUpdate: {
-            /** Avg Duration */
-            avg_duration?: number | null;
-            /** Description */
-            description?: string | null;
-            /** Instructions */
-            instructions?: string | null;
-            /** Is Active */
-            is_active?: boolean | null;
-            /** Max Tokens */
-            max_tokens?: number | null;
-            /** Name */
-            name?: string | null;
-            /** Success Rate */
-            success_rate?: number | null;
-            /** System Prompt */
-            system_prompt?: string | null;
-            /** Tags */
-            tags?: string[] | null;
-            /** Temperature */
-            temperature?: number | null;
-            /** Voice */
-            voice?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -745,7 +745,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExperimentPrompt"][];
+                    "application/json": components["schemas"]["Agent"][];
                 };
             };
             /** @description Validation Error */
@@ -768,7 +768,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ExperimentPromptCreate"];
+                "application/json": components["schemas"]["AgentCreate"];
             };
         };
         responses: {
@@ -778,7 +778,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExperimentPrompt"];
+                    "application/json": components["schemas"]["Agent"];
                 };
             };
             /** @description Validation Error */
@@ -809,7 +809,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExperimentPrompt"];
+                    "application/json": components["schemas"]["Agent"];
                 };
             };
             /** @description Validation Error */
@@ -865,7 +865,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ExperimentPromptUpdate"];
+                "application/json": components["schemas"]["AgentUpdate"];
             };
         };
         responses: {
@@ -875,7 +875,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExperimentPrompt"];
+                    "application/json": components["schemas"]["Agent"];
                 };
             };
             /** @description Validation Error */
@@ -908,7 +908,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExperimentPrompt"];
+                    "application/json": components["schemas"]["Agent"];
                 };
             };
             /** @description Validation Error */
@@ -925,7 +925,7 @@ export interface operations {
     get_assignments_api_assignments__get: {
         parameters: {
             query?: {
-                experiment_prompt_id?: string | null;
+                agent_id?: string | null;
                 is_active?: boolean | null;
                 participant_id?: string | null;
             };

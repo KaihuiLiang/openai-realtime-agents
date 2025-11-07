@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get("/", response_model=List[schemas.Assignment])
 async def get_assignments(
     participant_id: Optional[str] = Query(None),
-    experiment_prompt_id: Optional[str] = Query(None),
+    agent_id: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(None),
     db: Session = Depends(get_db)
 ):
@@ -29,8 +29,8 @@ async def get_assignments(
         if participant:
             query = query.filter(models.ParticipantAgentAssignment.participant_id == participant.id)
     
-    if experiment_prompt_id:
-        query = query.filter(models.ParticipantAgentAssignment.experiment_prompt_id == experiment_prompt_id)
+    if agent_id:
+        query = query.filter(models.ParticipantAgentAssignment.agent_id == agent_id)
     
     if is_active is not None:
         query = query.filter(models.ParticipantAgentAssignment.is_active == is_active)
@@ -71,8 +71,8 @@ async def create_assignment(
         raise HTTPException(status_code=404, detail="Participant not found")
     
     # Verify experiment prompt exists
-    experiment = db.query(models.ExperimentPrompt).filter(
-        models.ExperimentPrompt.id == assignment_data.experiment_prompt_id
+    experiment = db.query(models.Agent).filter(
+        models.Agent.id == assignment_data.agent_id
     ).first()
     
     if not experiment:

@@ -13,7 +13,7 @@ async function fetchAssignment(id: string): Promise<Assignment | null> {
     return {
       id: a.id,
       participant_id: a.participant_id,
-      experiment_prompt_id: a.experiment_prompt_id ?? '',
+      agent_id: a.agent_id ?? '',
       agent_config: a.agent_config ?? '',
       agent_name: a.agent_name ?? '',
       is_active: !!a.is_active,
@@ -61,7 +61,7 @@ export default async function EditAssignmentPage({ params }: { params: Promise<{
       initial={assignment}
       participants={participants}
       agents={agents}
-      originalPromptId={assignment.experiment_prompt_id ?? null}
+      originalPromptId={assignment.agent_id ?? null}
     />
   );
 }

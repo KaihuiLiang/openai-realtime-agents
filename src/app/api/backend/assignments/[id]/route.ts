@@ -30,7 +30,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // If client is attempting to change immutable fields on the backend,
     // emulate the change by creating a new assignment and deleting the old one.
     const wantsPromptChange =
-      Object.prototype.hasOwnProperty.call(body, 'experiment_prompt_id') ||
+      Object.prototype.hasOwnProperty.call(body, 'agent_id') ||
       Object.prototype.hasOwnProperty.call(body, 'agent_config') ||
       Object.prototype.hasOwnProperty.call(body, 'agent_name');
 
@@ -48,7 +48,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       const createBody = {
         participant_id: body.participant_id ?? current.participant_id,
-        experiment_prompt_id: body.experiment_prompt_id ?? current.experiment_prompt_id,
+        agent_id: body.agent_id ?? current.agent_id,
         agent_config: body.agent_config ?? current.agent_config,
         agent_name: body.agent_name ?? current.agent_name,
         is_active: body.is_active ?? current.is_active ?? false,

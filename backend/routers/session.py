@@ -26,8 +26,8 @@ async def get_participant_config(participant_id: str, db: Session = Depends(get_
     # Check if guest mode
     if participant.is_guest:
         # Guest can choose any active experiment prompt
-        available_prompts = db.query(models.ExperimentPrompt).filter(
-            models.ExperimentPrompt.is_active == True
+        available_prompts = db.query(models.Agent).filter(
+            models.Agent.is_active == True
         ).all()
         
         return {
@@ -60,8 +60,8 @@ async def get_participant_config(participant_id: str, db: Session = Depends(get_
         )
     
     # Get experiment prompt details
-    experiment = db.query(models.ExperimentPrompt).filter(
-        models.ExperimentPrompt.id == assignment.experiment_prompt_id
+    experiment = db.query(models.Agent).filter(
+        models.Agent.id == assignment.agent_id
     ).first()
     
     if not experiment:

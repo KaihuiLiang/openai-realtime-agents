@@ -2,8 +2,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-# ExperimentPrompt schemas
-class ExperimentPromptBase(BaseModel):
+# Agent schemas
+class AgentBase(BaseModel):
     name: str
     agent_config: str
     agent_name: str
@@ -16,10 +16,10 @@ class ExperimentPromptBase(BaseModel):
     tags: List[str] = []
     is_active: bool = False
 
-class ExperimentPromptCreate(ExperimentPromptBase):
+class AgentCreate(AgentBase):
     pass
 
-class ExperimentPromptUpdate(BaseModel):
+class AgentUpdate(BaseModel):
     name: Optional[str] = None
     system_prompt: Optional[str] = None
     instructions: Optional[str] = None
@@ -32,7 +32,7 @@ class ExperimentPromptUpdate(BaseModel):
     success_rate: Optional[float] = None
     avg_duration: Optional[float] = None
 
-class ExperimentPrompt(ExperimentPromptBase):
+class Agent(AgentBase):
     id: str
     success_rate: Optional[float] = None
     avg_duration: Optional[float] = None
@@ -68,11 +68,11 @@ class ConversationLog(ConversationLogBase):
         from_attributes = True
 
 # Response models
-class PromptsResponse(BaseModel):
-    prompts: List[ExperimentPrompt]
+class AgentsResponse(BaseModel):
+    agents: List[Agent]
 
-class PromptResponse(BaseModel):
-    prompt: ExperimentPrompt
+class AgentResponse(BaseModel):
+    agent: Agent
 
 class MessageResponse(BaseModel):
     message: str
@@ -106,7 +106,7 @@ class Participant(ParticipantBase):
 # --- ParticipantAgentAssignment schemas ---
 class AssignmentBase(BaseModel):
     participant_id: str
-    experiment_prompt_id: str
+    agent_id: str
     agent_config: str
     agent_name: str
     is_active: bool = True

@@ -32,10 +32,10 @@ export default function EditAssignmentForm({
     setSaving(true);
     setError(null);
     try {
-      const selectedAgent = agents.find((agent) => agent.id === form.experiment_prompt_id);
+      const selectedAgent = agents.find((agent) => agent.id === form.agent_id);
       if (!selectedAgent) throw new Error('Agent not selected');
 
-      if (!originalPromptId || form.experiment_prompt_id === originalPromptId) {
+      if (!originalPromptId || form.agent_id === originalPromptId) {
         const body = {
           is_active: !!form.is_active,
           order: Number(form.order ?? 0),
@@ -69,7 +69,7 @@ export default function EditAssignmentForm({
         // recreate assignment with new prompt/agent
         const createBody = {
           participant_id: form.participant_id,
-          experiment_prompt_id: form.experiment_prompt_id,
+          agent_id: form.agent_id,
           agent_config: selectedAgent.agent_config,
           agent_name: selectedAgent.agent_name,
           is_active: !!form.is_active,
@@ -130,8 +130,8 @@ export default function EditAssignmentForm({
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-2">Agent</label>
           <select
-            name="experiment_prompt_id"
-            value={form.experiment_prompt_id}
+            name="agent_id"
+            value={form.agent_id}
             onChange={handleChange}
             className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all outline-none bg-white text-slate-800 placeholder-slate-500"
             required
