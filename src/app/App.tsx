@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+
 import { v4 as uuidv4 } from "uuid";
 
 import Image from "next/image";
@@ -31,20 +31,9 @@ import { useAutoSaveConversation } from "./hooks/useAutoSaveConversation";
 import VoiceModeSimple from './components/VoiceModeSimple';
 
 function App() {
-  const searchParams = useSearchParams()!;
+  // Removed: searchParams (no longer needed)
 
-  // ---------------------------------------------------------------------
-  // Codec selector – lets you toggle between wide-band Opus (48 kHz)
-  // and narrow-band PCMU/PCMA (8 kHz) to hear what the agent sounds like on
-  // a traditional phone line and to validate ASR / VAD behaviour under that
-  // constraint.
-  //
-  // We read the `?codec=` query-param and rely on the `changePeerConnection`
-  // hook (configured in `useRealtimeSession`) to set the preferred codec
-  // before the offer/answer negotiation.
-  // ---------------------------------------------------------------------
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const urlCodec = searchParams.get("codec") || "opus";
+  // Codec is fixed; all codec selection logic removed.
 
   // Agents SDK doesn't currently support codec selection so it is now forced 
   // via global codecPatch at module load 
@@ -112,7 +101,7 @@ function App() {
     useState<boolean>(true);
   const [userText, setUserText] = useState<string>("");
   const [isPTTActive, setIsPTTActive] = useState<boolean>(false);
-  const [isPTTUserSpeaking, setIsPTTUserSpeaking] = useState<boolean>(false);
+
   const [isAudioPlaybackEnabled, setIsAudioPlaybackEnabled] = useState<boolean>(
     () => {
       if (typeof window === 'undefined') return true;
@@ -140,7 +129,7 @@ function App() {
   useAutoSaveConversation({
     transcriptItems,
     sessionStatus,
-    agentConfig: searchParams.get("agentConfig") || "default",
+    agentConfig: "chatSupervisor",
     agentName: selectedAgentName || null, // Convert empty string to null
     sessionId,
     experimentId: null, // TODO: Link to experiment when implementing experiment selection
@@ -234,7 +223,6 @@ function App() {
   const disconnectFromRealtime = () => {
     disconnect();
     setSessionStatus("DISCONNECTED");
-    setIsPTTUserSpeaking(false);
   };
 
   const sendSimulatedUserMessage = (text: string) => {
@@ -294,26 +282,7 @@ function App() {
     setUserText("");
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleTalkButtonDown = () => {
-    if (sessionStatus !== 'CONNECTED') return;
-    interrupt();
 
-    setIsPTTUserSpeaking(true);
-    sendClientEvent({ type: 'input_audio_buffer.clear' }, 'clear PTT buffer');
-
-    // No placeholder; we'll rely on server transcript once ready.
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleTalkButtonUp = () => {
-    if (sessionStatus !== 'CONNECTED' || !isPTTUserSpeaking)
-      return;
-
-    setIsPTTUserSpeaking(false);
-    sendClientEvent({ type: 'input_audio_buffer.commit' }, 'commit PTT');
-    sendClientEvent({ type: 'response.create' }, 'trigger response PTT');
-  };
 
   const onToggleConnection = () => {
     if (sessionStatus === "CONNECTED" || sessionStatus === "CONNECTING") {
@@ -326,12 +295,7 @@ function App() {
   };
 
   // Because we need a new connection, refresh the page when codec changes
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleCodecChange = (newCodec: string) => {
-    const url = new URL(window.location.toString());
-    url.searchParams.set("codec", newCodec);
-    window.location.replace(url.toString());
-  };
+  // Codec is fixed; handleCodecChange removed.
 
   useEffect(() => {
     const storedPushToTalkUI = localStorage.getItem("pushToTalkUI");
