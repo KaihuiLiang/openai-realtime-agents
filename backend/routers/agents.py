@@ -35,6 +35,24 @@ async def get_agents(
     agents = query.order_by(models.ExperimentPrompt.updated_at.desc()).all()
     return agents
 
+@router.get("/by-name/{agent_name}", response_model=schemas.ExperimentPrompt)
+async def get_active_agent_by_name(
+    agent_name: str,
+    agent_config: Optional[str] = Query("chatSupervisor"),
+    db: Session = Depends(get_db)
+):
+    """Get the active agent configuration by agent name and config"""
+    agent = db.query(models.ExperimentPrompt).filter(
+        models.ExperimentPrompt.agent_name == agent_name,
+        models.ExperimentPrompt.agent_config == agent_config,
+        models.ExperimentPrompt.is_active == True
+    ).first()
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"No active agent found with name '{agent_name}' in config '{agent_config}'")
+    
+    return agent
+
 @router.get("/{agent_id}", response_model=schemas.ExperimentPrompt)
 async def get_agent(agent_id: str, db: Session = Depends(get_db)):
     """Get a single agent by ID"""

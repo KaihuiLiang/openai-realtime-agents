@@ -19,7 +19,7 @@ import { useTranscript } from "@/app/contexts/TranscriptContext";
 import { useEvent } from "@/app/contexts/EventContext";
 import { useRealtimeSession } from "./hooks/useRealtimeSession";
 import { createModerationGuardrail } from "@/app/agentConfigs/guardrails";
-import { chatSupervisorScenario } from "@/app/agentConfigs/chatSupervisor";
+import { chatSupervisorScenario, defaultAgentName, defaultVoice, chatAgent } from "@/app/agentConfigs/chatSupervisor";
 
 // Only using chatSupervisor config
 
@@ -140,10 +140,44 @@ function App() {
     console.log('🏷️ Agent name changed:', selectedAgentName);
   }, [selectedAgentName]);
 
-  // No scenario switching, always use chatSupervisor
+  // Fetch agent configuration from backend or use hardcoded default
   useEffect(() => {
-    setSelectedAgentName(chatSupervisorScenario[0]?.name || "");
-    setSelectedAgentConfigSet(chatSupervisorScenario);
+    const loadAgentConfig = async () => {
+      try {
+        // Try to fetch active agent from backend
+        const response = await fetch(`/api/agents/by-name/${defaultAgentName}?agent_config=chatSupervisor`);
+
+        if (response.ok) {
+          const agentData = await response.json();
+          console.log('✅ Loaded agent config from backend:', agentData);
+
+          // Create RealtimeAgent from backend data
+          const backendAgent = new (chatAgent.constructor as any)({
+            name: agentData.agent_name,
+            voice: agentData.voice || defaultVoice,
+            instructions: agentData.system_prompt,
+          });
+
+          setSelectedAgentName(backendAgent.name);
+          setSelectedAgentConfigSet([backendAgent]);
+          addTranscriptBreadcrumb(`Agent: ${backendAgent.name}`, { source: 'backend', agentId: agentData.id, systemPrompt: agentData.system_prompt });
+        } else {
+          // Backend agent not found, use hardcoded default
+          console.log('ℹ️ No backend agent found, using hardcoded config');
+          setSelectedAgentName(chatSupervisorScenario[0]?.name || "");
+          setSelectedAgentConfigSet(chatSupervisorScenario);
+          addTranscriptBreadcrumb(`Agent: ${chatSupervisorScenario[0]?.name}`, { source: 'hardcoded' });
+        }
+      } catch (error) {
+        console.error('❌ Error loading agent config from backend:', error);
+    // Fallback to hardcoded config on error
+        setSelectedAgentName(chatSupervisorScenario[0]?.name || "");
+        setSelectedAgentConfigSet(chatSupervisorScenario);
+        addTranscriptBreadcrumb(`Agent: ${chatSupervisorScenario[0]?.name}`, { source: 'hardcoded', reason: 'backend_error', error: String(error) });
+      }
+    };
+
+    loadAgentConfig();
   }, []);
 
 
@@ -192,8 +226,16 @@ function App() {
     try {
       const EPHEMERAL_KEY = await fetchEphemeralKey();
       if (!EPHEMERAL_KEY) return;
+      
+      // Use the currently selected agent config set (from backend or hardcoded)
+      if (!selectedAgentConfigSet || selectedAgentConfigSet.length === 0) {
+        console.error('❌ No agent config available');
+        setSessionStatus("DISCONNECTED");
+        return;
+      }
+      
       // Ensure the selectedAgentName is first so that it becomes the root
-      const reorderedAgents = [...chatSupervisorScenario];
+      const reorderedAgents = [...selectedAgentConfigSet];
       const idx = reorderedAgents.findIndex((a) => a.name === selectedAgentName);
       if (idx > 0) {
         const [agent] = reorderedAgents.splice(idx, 1);

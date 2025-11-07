@@ -63,6 +63,12 @@ You’re not trying to win — you’re exploring both sides of a real human que
 // To enable supervisor pattern, add supervisorAgent to this array and uncomment the import above
 export const chatSupervisorScenario = [chatAgent];
 
+// Default agent to use when app starts
+export const defaultAgentName = 'chatAgent';
+
+// Default voice to use when backend doesn't specify one
+export const defaultVoice = 'alloy';
+
 // Name of the company represented by this agent set. Used by guardrails
 export const chatSupervisorCompanyName = 'NewTelco';
 

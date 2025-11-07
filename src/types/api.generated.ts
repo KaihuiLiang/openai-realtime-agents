@@ -73,6 +73,26 @@ export type paths = {
         patch: operations["update_agent_api_agents__agent_id__patch"];
         trace?: never;
     };
+    "/api/agents/by-name/{agent_name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Active Agent By Name
+         * @description Get the active agent configuration by agent name and config
+         */
+        get: operations["get_active_agent_by_name_api_agents_by_name__agent_name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/assignments/": {
         parameters: {
             query?: never;
@@ -848,6 +868,39 @@ export interface operations {
                 "application/json": components["schemas"]["ExperimentPromptUpdate"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExperimentPrompt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_active_agent_by_name_api_agents_by_name__agent_name__get: {
+        parameters: {
+            query?: {
+                agent_config?: string | null;
+            };
+            header?: never;
+            path: {
+                agent_name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
