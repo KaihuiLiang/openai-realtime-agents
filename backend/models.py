@@ -11,9 +11,9 @@ class Agent(Base):
     __tablename__ = "agents"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    name = Column(String, nullable=False, index=True)
-    agent_config = Column(String, nullable=False, index=True)
-    agent_name = Column(String, nullable=False, index=True)
+    agent_name = Column(String, nullable=False, index=True)    # Stable unique identifier (e.g., "chatAgent")
+    display_name = Column(String, nullable=False, index=True)  # Human-readable label (e.g., "Sales Assistant")
+    agent_config = Column(String, nullable=False, index=True)  # Logical grouping / scenario (e.g., "chatSupervisor")
     
     # Prompt content
     system_prompt = Column(Text, nullable=False)

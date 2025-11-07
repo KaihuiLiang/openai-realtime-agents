@@ -4,9 +4,9 @@ from datetime import datetime
 
 # Agent schemas
 class AgentBase(BaseModel):
-    name: str
-    agent_config: str
-    agent_name: str
+    agent_name: str              # Stable unique identifier (machine-facing)
+    display_name: str            # Human-facing label
+    agent_config: str            # Group / configuration name
     system_prompt: str
     instructions: Optional[str] = None
     temperature: Optional[float] = 0.8
@@ -20,7 +20,7 @@ class AgentCreate(AgentBase):
     pass
 
 class AgentUpdate(BaseModel):
-    name: Optional[str] = None
+    display_name: Optional[str] = None
     system_prompt: Optional[str] = None
     instructions: Optional[str] = None
     temperature: Optional[float] = None

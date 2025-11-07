@@ -363,6 +363,8 @@ export type components = {
             created_at: string;
             /** Description */
             description?: string | null;
+            /** Display Name */
+            display_name: string;
             /** Id */
             id: string;
             /** Instructions */
@@ -374,8 +376,6 @@ export type components = {
             is_active: boolean;
             /** Max Tokens */
             max_tokens?: number | null;
-            /** Name */
-            name: string;
             /** Success Rate */
             success_rate?: number | null;
             /** System Prompt */
@@ -405,6 +405,8 @@ export type components = {
             agent_name: string;
             /** Description */
             description?: string | null;
+            /** Display Name */
+            display_name: string;
             /** Instructions */
             instructions?: string | null;
             /**
@@ -414,8 +416,6 @@ export type components = {
             is_active: boolean;
             /** Max Tokens */
             max_tokens?: number | null;
-            /** Name */
-            name: string;
             /** System Prompt */
             system_prompt: string;
             /**
@@ -437,14 +437,14 @@ export type components = {
             avg_duration?: number | null;
             /** Description */
             description?: string | null;
+            /** Display Name */
+            display_name?: string | null;
             /** Instructions */
             instructions?: string | null;
             /** Is Active */
             is_active?: boolean | null;
             /** Max Tokens */
             max_tokens?: number | null;
-            /** Name */
-            name?: string | null;
             /** Success Rate */
             success_rate?: number | null;
             /** System Prompt */
