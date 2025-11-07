@@ -146,11 +146,7 @@ function App() {
     setSelectedAgentConfigSet(chatSupervisorScenario);
   }, []);
 
-  useEffect(() => {
-    if (selectedAgentName && sessionStatus === "DISCONNECTED") {
-      connectToRealtime();
-    }
-  }, [selectedAgentName]);
+
 
   useEffect(() => {
     if (
