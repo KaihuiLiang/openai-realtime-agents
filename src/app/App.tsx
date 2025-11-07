@@ -19,7 +19,7 @@ import { useTranscript } from "@/app/contexts/TranscriptContext";
 import { useEvent } from "@/app/contexts/EventContext";
 import { useRealtimeSession } from "./hooks/useRealtimeSession";
 import { createModerationGuardrail } from "@/app/agentConfigs/guardrails";
-import { chatSupervisorScenario, chatSupervisorCompanyName } from "@/app/agentConfigs/chatSupervisor";
+import { chatSupervisorScenario } from "@/app/agentConfigs/chatSupervisor";
 
 // Only using chatSupervisor config
 
@@ -199,8 +199,7 @@ function App() {
         const [agent] = reorderedAgents.splice(idx, 1);
         reorderedAgents.unshift(agent);
       }
-      const companyName = chatSupervisorCompanyName;
-      const guardrail = createModerationGuardrail(companyName);
+      const guardrail = createModerationGuardrail(); // General conversational AI moderation
       await connect({
         getEphemeralKey: async () => EPHEMERAL_KEY,
         initialAgents: reorderedAgents,

@@ -7,16 +7,11 @@ import { GuardrailOutputZod, GuardrailOutput } from '@/app/types';
 // By sending it a corrective message and having it redirect the conversation.
 export async function runGuardrailClassifier(
   message: string,
-  companyName: string = 'newTelco',
 ): Promise<GuardrailOutput> {
   const messages = [
     {
       role: 'user',
-      content: `You are an expert at classifying text according to moderation policies. Consider the provided message, analyze potential classes from output_classes, and output the best classification. Output json, following the provided schema. Keep your analysis and reasoning short and to the point, maximum 2 sentences.
-
-      <info>
-      - Company name: ${companyName}
-      </info>
+      content: `You are an expert at classifying text according to moderation policies for conversational AI. Consider the provided message, analyze potential classes from output_classes, and output the best classification. Output json, following the provided schema. Keep your analysis and reasoning short and to the point, maximum 2 sentences.
 
       <message>
       ${message}
@@ -24,8 +19,8 @@ export async function runGuardrailClassifier(
 
       <output_classes>
       - OFFENSIVE: Content that includes hate speech, discriminatory language, insults, slurs, or harassment.
-      - OFF_BRAND: Content that discusses competitors in a disparaging way.
       - VIOLENCE: Content that includes explicit threats, incitement of harm, or graphic descriptions of physical injury or violence.
+      - INAPPROPRIATE: Content that is sexually explicit, promotes harmful activities, or is otherwise unsuitable for general conversation.
       - NONE: If no other classes are appropriate and the message is fine.
       </output_classes>
       `,
@@ -76,14 +71,14 @@ export interface RealtimeOutputGuardrailArgs {
   context?: any;
 }
 
-// Creates a guardrail bound to a specific company name for output moderation purposes. 
-export function createModerationGuardrail(companyName: string) {
+// Creates a guardrail for general conversational AI output moderation. 
+export function createModerationGuardrail() {
   return {
     name: 'moderation_guardrail',
 
     async execute({ agentOutput }: RealtimeOutputGuardrailArgs): Promise<RealtimeOutputGuardrailResult> {
       try {
-        const res = await runGuardrailClassifier(agentOutput, companyName);
+        const res = await runGuardrailClassifier(agentOutput);
         const triggered = res.moderationCategory !== 'NONE';
         return {
           tripwireTriggered: triggered,

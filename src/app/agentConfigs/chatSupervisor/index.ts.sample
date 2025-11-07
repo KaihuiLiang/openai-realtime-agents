@@ -1,3 +1,12 @@
+/**
+ * ⚠️ EXAMPLE CONFIGURATION - NOT CURRENTLY IN USE
+ * 
+ * This is a sample configuration showing how to use the supervisor agent pattern.
+ * The actual active configuration is in index.ts (which currently uses only chatAgent).
+ * 
+ * This file is preserved as a reference for implementing multi-agent patterns.
+ */
+
 import { RealtimeAgent } from '@openai/agents/realtime'
 import { getNextResponseFromSupervisor } from './supervisorAgent';
 

@@ -1,6 +1,8 @@
 import { RealtimeAgent } from '@openai/agents/realtime'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { getNextResponseFromSupervisor } from './supervisorAgent';
+// To enable supervisor agent pattern:
+// 1. Rename supervisorAgent.ts.sample to supervisorAgent.ts
+// 2. Uncomment: import { getNextResponseFromSupervisor } from './supervisorAgent';
+// 3. Add getNextResponseFromSupervisor to chatAgent tools
 
 export const chatAgent = new RealtimeAgent({
   name: 'chatAgent',
@@ -57,6 +59,8 @@ You’re not trying to win — you’re exploring both sides of a real human que
 `,
 });
 
+// Currently using only chatAgent
+// To enable supervisor pattern, add supervisorAgent to this array and uncomment the import above
 export const chatSupervisorScenario = [chatAgent];
 
 // Name of the company represented by this agent set. Used by guardrails
