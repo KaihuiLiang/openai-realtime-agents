@@ -6,12 +6,14 @@ interface VoiceModeSimpleProps {
     isActive: boolean;
     onClose: () => void;
     isSpeaking: boolean;
+    isConnected: boolean;
 }
 
 export default function VoiceModeSimple({
     isActive,
     onClose,
     isSpeaking,
+    isConnected,
 }: VoiceModeSimpleProps) {
     const [micVolume, setMicVolume] = useState(0);
     const [waveformData, setWaveformData] = useState<number[]>(new Array(20).fill(0.2));
@@ -125,81 +127,88 @@ export default function VoiceModeSimple({
             className="fixed inset-0 pb-28 bg-black z-50 flex items-center justify-center cursor-pointer"
             onClick={onClose}
         >
-            {/* Container with fixed height for positioning */}
             <div className="relative flex items-center justify-center" style={{ height: '400px', width: '100%' }}>
+                                {!isConnected ? (
+                                  <div className="text-white text-2xl font-semibold flex flex-col items-center justify-center w-full h-full">
+                                    <span>Please click Start Chatting</span>
+                                    <span className="text-base text-gray-300 mt-2">(Voice mode will be enabled after connecting)</span>
+                                  </div>
+                                ) : (
+                                  <>
+                                    {/* Waveform - AI Speaking - Positioned above center */}
+                                    {isSpeaking && (
+                                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-2 h-64">
+                                            {waveformData.map((height, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="w-3 bg-blue-400 rounded-full transition-all duration-100 ease-out"
+                                                    style={{
+                                                        height: `${height * 180}px`,
+                                                        opacity: 0.5 + height * 0.5,
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
 
-                {/* Waveform - AI Speaking - Positioned above center */}
-                {isSpeaking && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-2 h-64">
-                        {waveformData.map((height, i) => (
-                            <div
-                                key={i}
-                                className="w-3 bg-blue-400 rounded-full transition-all duration-100 ease-out"
-                                style={{
-                                    height: `${height * 180}px`,
-                                    opacity: 0.5 + height * 0.5,
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
+                                    {/* Microphone - Always Listening - Fixed in center */}
+                                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style={{ marginTop: '220px' }}>
+                                        <div className="relative flex items-center justify-center">
+                                            {/* Base ripple - always visible to show mic is listening */}
+                                            <div
+                                                className="absolute rounded-full bg-green-400/15 animate-pulse"
+                                                style={{
+                                                    width: '180px',
+                                                    height: '180px',
+                                                }}
+                                            />
 
-                {/* Microphone - Always Listening - Fixed in center */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style={{ marginTop: '220px' }}>
-                    <div className="relative flex items-center justify-center">
-                        {/* Base ripple - always visible to show mic is listening */}
-                        <div
-                            className="absolute rounded-full bg-green-400/15 animate-pulse"
-                            style={{
-                                width: '180px',
-                                height: '180px',
-                            }}
-                        />
+                                            {/* Active glow rings when user speaks */}
+                                            {micVolume > 0.15 && (
+                                                <>
+                                                    <div
+                                                        className="absolute rounded-full bg-green-400/40 animate-ping"
+                                                        style={{
+                                                            width: `${160 + glowIntensity}px`,
+                                                            height: `${160 + glowIntensity}px`,
+                                                            opacity: micVolume * 0.7,
+                                                        }}
+                                                    />
+                                                    <div
+                                                        className="absolute rounded-full bg-green-400/30 animate-pulse"
+                                                        style={{
+                                                            width: `${200 + glowIntensity * 1.5}px`,
+                                                            height: `${200 + glowIntensity * 1.5}px`,
+                                                            opacity: micVolume * 0.5,
+                                                        }}
+                                                    />
+                                                </>
+                                            )}
 
-                        {/* Active glow rings when user speaks */}
-                        {micVolume > 0.15 && (
-                            <>
-                                <div
-                                    className="absolute rounded-full bg-green-400/40 animate-ping"
-                                    style={{
-                                        width: `${160 + glowIntensity}px`,
-                                        height: `${160 + glowIntensity}px`,
-                                        opacity: micVolume * 0.7,
-                                    }}
-                                />
-                                <div
-                                    className="absolute rounded-full bg-green-400/30 animate-pulse"
-                                    style={{
-                                        width: `${200 + glowIntensity * 1.5}px`,
-                                        height: `${200 + glowIntensity * 1.5}px`,
-                                        opacity: micVolume * 0.5,
-                                    }}
-                                />
-                            </>
-                        )}
-
-                        {/* Microphone Icon */}
-                        <svg
-                            width="120"
-                            height="120"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="relative z-10 text-green-400 transition-all duration-150"
-                            style={{
-                                transform: `scale(${scale})`,
-                                filter: `drop-shadow(0 0 ${glowIntensity}px currentColor)`,
-                            }}
-                        >
-                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" x2="12" y1="19" y2="22"></line>
-                        </svg>
-                    </div>
-                </div>
+                                            {/* Microphone Icon */}
+                                            <svg
+                                                width="120"
+                                                height="120"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="relative z-10 text-green-400 transition-all duration-150"
+                                                style={{
+                                                    transform: `scale(${scale})`,
+                                                    filter: `drop-shadow(0 0 ${glowIntensity}px currentColor)`,
+                                                }}
+                                            >
+                                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                                <line x1="12" x2="12" y1="19" y2="22"></line>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                  </>
+                                )}
             </div>
         </div>
     );
