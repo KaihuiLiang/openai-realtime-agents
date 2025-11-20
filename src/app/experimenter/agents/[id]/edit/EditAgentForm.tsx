@@ -22,7 +22,7 @@ export default function EditAgentForm({ initial }: { initial: Agent }) {
     setError(null);
     try {
       const body: any = {
-        name: form.name,
+        display_name: form.display_name,
         agent_config: form.agent_config,
         agent_name: form.agent_name,
         system_prompt: form.system_prompt,
@@ -66,8 +66,20 @@ export default function EditAgentForm({ initial }: { initial: Agent }) {
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-slate-800">Edit Agent</h2>
+        <h2 className="text-3xl font-bold text-slate-800">
+          Edit Agent
+          {Boolean(form.display_name || form.agent_name) && (
+            <span className="ml-3 text-slate-600 text-2xl font-semibold align-middle">
+              · {form.display_name || form.agent_name}
+            </span>
+          )}
+        </h2>
         <p className="text-slate-600 mt-1">Update the agent configuration</p>
+        {form.agent_name && (
+          <div className="mt-2 text-xs text-slate-500">
+            Identifier: <span className="font-mono bg-slate-100 px-2 py-0.5 rounded" title="agent_name">{form.agent_name}</span>
+          </div>
+        )}
       </div>
       <form onSubmit={onSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
         {error && (
@@ -76,7 +88,17 @@ export default function EditAgentForm({ initial }: { initial: Agent }) {
           </div>
         )}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">Agent Name</label>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Display Name</label>
+          <input
+            name="display_name"
+            value={form.display_name || ''}
+            onChange={handleChange}
+            className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none text-slate-800 placeholder-slate-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Agent Identifier (agent_name)</label>
           <input
             name="agent_name"
             value={form.agent_name}
