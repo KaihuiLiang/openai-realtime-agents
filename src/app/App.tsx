@@ -453,20 +453,23 @@ function App() {
         <Events isExpanded={isEventsPaneExpanded} />
       </div>
 
-      <BottomToolbar
-        sessionStatus={sessionStatus}
-        onToggleConnection={onToggleConnection}
-        isEventsPaneExpanded={isEventsPaneExpanded}
-        setIsEventsPaneExpanded={setIsEventsPaneExpanded}
-        voiceModeActive={voiceModeActive}
-        setVoiceModeActive={setVoiceModeActive}
-      />
-
       <VoiceModeSimple
         isActive={voiceModeActive}
         onClose={() => setVoiceModeActive(false)}
         isSpeaking={isAISpeaking}
       />
+
+      {/* Always show toolbar at bottom, even in Voice Mode */}
+      <div className="fixed left-0 right-0 bottom-0 z-[100] bg-white/80 backdrop-blur border-t border-slate-200">
+        <BottomToolbar
+          sessionStatus={sessionStatus}
+          onToggleConnection={onToggleConnection}
+          isEventsPaneExpanded={isEventsPaneExpanded}
+          setIsEventsPaneExpanded={setIsEventsPaneExpanded}
+          voiceModeActive={voiceModeActive}
+          setVoiceModeActive={setVoiceModeActive}
+        />
+      </div>
     </div>
   );
 }

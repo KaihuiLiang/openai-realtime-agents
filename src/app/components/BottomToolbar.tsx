@@ -68,8 +68,8 @@ function BottomToolbar({
         className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${voiceModeActive
             ? 'bg-blue-700 text-white'
             : 'bg-blue-600 hover:bg-blue-700 text-white'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-        disabled={!isConnected}
+          }`}
+        // Always enabled so user can open Voice Mode at any time
         title="Enter Voice Mode (full screen)"
       >
         <Mic size={18} />

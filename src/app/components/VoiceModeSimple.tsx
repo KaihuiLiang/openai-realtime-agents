@@ -119,9 +119,10 @@ export default function VoiceModeSimple({
     const scale = 1 + micVolume * 0.15;
     const glowIntensity = micVolume * 60;
 
+    // Add bottom padding so toolbar is not covered
     return (
         <div
-            className="fixed inset-0 bg-black z-50 flex items-center justify-center cursor-pointer"
+            className="fixed inset-0 pb-28 bg-black z-50 flex items-center justify-center cursor-pointer"
             onClick={onClose}
         >
             {/* Container with fixed height for positioning */}
