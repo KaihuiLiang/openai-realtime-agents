@@ -79,7 +79,12 @@ export default async function AssignmentsPage() {
                     <span className="bg-slate-100 px-2 py-1 rounded" title={a.participant_id}>{getParticipantDisplay(a.participant_id)}</span>
                   </td>
                   <td className="p-4 text-slate-700 font-medium">
-                    {a.agent_name}
+                    {a.display_name || a.agent_name}
+                    {a.agent_name && a.display_name && (
+                      <span className="ml-2 text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-500" title="agent_name">
+                        {a.agent_name}
+                      </span>
+                    )}
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">

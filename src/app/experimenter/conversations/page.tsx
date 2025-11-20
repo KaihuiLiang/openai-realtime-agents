@@ -86,7 +86,12 @@ export default async function ConversationsPage() {
                   return (
                     <tr key={conv.id} className="hover:bg-indigo-50/50 transition-colors">
                       <td className="p-4">
-                        <div className="font-medium text-slate-900 text-sm">{conv.agent_name}</div>
+                        <div className="font-medium text-slate-900 text-sm">{conv.display_name || conv.agent_name}</div>
+                        {conv.agent_name && conv.display_name && (
+                          <div className="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-500 inline-block mt-1" title="agent_name">
+                            {conv.agent_name}
+                          </div>
+                        )}
                         <div className="text-xs text-slate-500">{conv.agent_config}</div>
                       </td>
                       <td className="p-4 max-w-md">
