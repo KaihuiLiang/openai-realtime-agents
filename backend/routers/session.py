@@ -37,7 +37,7 @@ async def get_participant_config(participant_id: str, db: Session = Depends(get_
             "available_agents": [
                 {
                     "experiment_id": prompt.id,
-                    "name": prompt.name,
+                    "display_name": prompt.display_name,
                     "agent_config": prompt.agent_config,
                     "agent_name": prompt.agent_name,
                     "description": prompt.description
@@ -76,7 +76,7 @@ async def get_participant_config(participant_id: str, db: Session = Depends(get_
             "experiment_id": experiment.id,
             "agent_config": assignment.agent_config,
             "agent_name": assignment.agent_name,
-            "experiment_name": experiment.name,
+            "experiment_name": experiment.display_name,
             "system_prompt": experiment.system_prompt,
             "instructions": experiment.instructions,
             "temperature": experiment.temperature,

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 export default function NewAgentPage() {
 	const router = useRouter();
 	const [form, setForm] = useState({
-		name: '',
+		display_name: '',
 		agent_config: 'chatSupervisor',
 		agent_name: 'chatAgent',
 		system_prompt: '',
@@ -57,7 +57,17 @@ export default function NewAgentPage() {
 					</div>
 				)}
 				<div>
-					<label className="block text-sm font-semibold text-slate-700 mb-2">Agent Name</label>
+					<label className="block text-sm font-semibold text-slate-700 mb-2">Display Name</label>
+					<input 
+						name="display_name" 
+						value={form.display_name} 
+						onChange={handleChange} 
+						className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+						required 
+					/>
+				</div>
+				<div>
+					<label className="block text-sm font-semibold text-slate-700 mb-2">Agent Identifier (agent_name)</label>
 					<input 
 						name="agent_name" 
 						value={form.agent_name} 

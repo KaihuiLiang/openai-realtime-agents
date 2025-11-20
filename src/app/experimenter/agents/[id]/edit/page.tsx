@@ -9,7 +9,7 @@ async function fetchAgent(id: string): Promise<Agent | null> {
 		const agent = await res.json();
 		return {
 			id: agent.id,
-			name: agent.name ?? '',
+			display_name: agent.display_name ?? '',
 			agent_config: agent.agent_config ?? '',
 			agent_name: agent.agent_name ?? '',
 			system_prompt: agent.system_prompt ?? '',
