@@ -69,7 +69,6 @@ function BottomToolbar({
             ? 'bg-blue-700 text-white'
             : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
-        // Always enabled so user can open Voice Mode at any time
         title="Enter Voice Mode (full screen)"
       >
         <Mic size={18} />

@@ -457,6 +457,7 @@ function App() {
         isActive={voiceModeActive}
         onClose={() => setVoiceModeActive(false)}
         isSpeaking={isAISpeaking}
+        isConnected={sessionStatus === "CONNECTED"}
       />
 
       {/* Always show toolbar at bottom, even in Voice Mode */}
