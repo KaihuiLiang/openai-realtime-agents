@@ -25,7 +25,7 @@ function BottomToolbar({
   function getConnectionButtonLabel() {
     if (isConnected) return "Disconnect";
     if (isConnecting) return "Connecting...";
-    return "Connect";
+    return "Start Chatting";
   }
 
   function getConnectionButtonClasses() {
