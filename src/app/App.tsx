@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { v4 as uuidv4 } from "uuid";
 
-import Image from "next/image";
-
 // UI components
 import Transcript from "./components/Transcript";
 import Events from "./components/Events";
@@ -719,26 +717,8 @@ function App() {
 
   return (
     <div className="text-base flex flex-col h-screen bg-gray-100 text-gray-800 relative">
-      <div className="p-5 text-lg font-semibold flex justify-between items-center">
-        <div
-          className="flex items-center cursor-pointer"
-          onClick={() => window.location.reload()}
-        >
-          <div>
-            <Image
-              src="/openai-logomark.svg"
-              alt="OpenAI Logo"
-              width={20}
-              height={20}
-              className="mr-2"
-            />
-          </div>
-          <div>
-            Realtime API <span className="text-gray-500">Agents</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
+      <div className="p-5 flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
           <label htmlFor="agent-selector" className="text-sm font-medium text-slate-600">
             Active Agent
           </label>

@@ -59,10 +59,28 @@ function Transcript({
     }
   }, [canSend]);
 
+  const buildTranscriptCopyText = () => {
+    return [...transcriptItems]
+      .sort((a, b) => a.createdAtMs - b.createdAtMs)
+      .filter((item) => !item.isHidden)
+      .map((item) => {
+        if (item.type === "MESSAGE") {
+          const title = item.title ?? "";
+          const isBracketedMessage = title.startsWith("[") && title.endsWith("]");
+          const displayTitle = isBracketedMessage ? title.slice(1, -1) : title;
+          const speakerLabel = item.role === "user" ? "User" : "Agent";
+
+          return `[${item.timestamp}] ${speakerLabel}: ${displayTitle}`;
+        }
+
+        return `[${item.timestamp}] [Breadcrumb] ${item.title ?? ""}`;
+      })
+      .join("\n\n");
+  };
+
   const handleCopyTranscript = async () => {
-    if (!transcriptRef.current) return;
     try {
-      await navigator.clipboard.writeText(transcriptRef.current.innerText);
+      await navigator.clipboard.writeText(buildTranscriptCopyText());
       setJustCopied(true);
       setTimeout(() => setJustCopied(false), 1500);
     } catch (error) {
