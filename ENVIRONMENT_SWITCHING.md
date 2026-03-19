@@ -31,46 +31,40 @@ curl -sS http://127.0.0.1:8000/health
 curl -I http://127.0.0.1:3000
 ```
 
-## 3) Suggested systemd split
+## 3) Production All-Docker
 
-Keep separate unit names for each environment.
+Production can run fully in Docker (db + backend + frontend) via:
+- `docker-compose.prod.yml`
 
-Example naming:
-- `realtime-dev-frontend.service`
-- `realtime-dev-backend.service`
-- `realtime-prod-frontend.service`
-- `realtime-prod-backend.service`
+Start production stack:
 
-For each unit, set `EnvironmentFile` to the matching env file.
-
-Example snippet for frontend:
-
-```ini
-[Service]
-WorkingDirectory=/home/ubuntu/openai-realtime-agents
-EnvironmentFile=-/home/ubuntu/openai-realtime-agents/.env.production
-ExecStart=/home/ubuntu/.nvm/versions/node/v22.20.0/bin/node /home/ubuntu/openai-realtime-agents/node_modules/.bin/next start -p 3001 -H 0.0.0.0
-Restart=always
-RestartSec=3
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 ```
 
-Example snippet for backend (prod, no reload):
+View logs:
 
-```ini
-[Service]
-WorkingDirectory=/home/ubuntu/openai-realtime-agents/backend
-EnvironmentFile=-/home/ubuntu/openai-realtime-agents/.env.production
-ExecStart=/usr/local/bin/python3.11 -m uvicorn main:app --host 127.0.0.1 --port 8001
-Restart=always
-RestartSec=3
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f
 ```
+
+Stop production stack:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml down
+```
+
+In this mode:
+- Frontend maps to `127.0.0.1:3001`
+- Backend maps to `127.0.0.1:8001`
+- DB maps to `127.0.0.1:5433`
 
 ## 4) Switching commands
 
 Switch to dev:
 
 ```bash
-sudo systemctl disable --now realtime-prod-frontend.service realtime-prod-backend.service
+docker compose --env-file .env.production -f docker-compose.prod.yml down
 sudo systemctl enable --now realtime-dev-backend.service realtime-dev-frontend.service
 ```
 
@@ -78,18 +72,19 @@ Switch to prod:
 
 ```bash
 sudo systemctl disable --now realtime-dev-frontend.service realtime-dev-backend.service
-sudo systemctl enable --now realtime-prod-backend.service realtime-prod-frontend.service
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 ```
 
 Check status:
 
 ```bash
-systemctl is-enabled realtime-dev-frontend.service realtime-dev-backend.service realtime-prod-frontend.service realtime-prod-backend.service
-systemctl is-active realtime-dev-frontend.service realtime-dev-backend.service realtime-prod-frontend.service realtime-prod-backend.service
+systemctl is-enabled realtime-dev-frontend.service realtime-dev-backend.service
+systemctl is-active realtime-dev-frontend.service realtime-dev-backend.service
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
 ```
 
 ## 5) Notes
 
 - This guide avoids changing app code and focuses on operational separation.
 - Keep secrets only in real env files (`.env.development`, `.env.production`), not in example files.
-- If a production service file does not exist yet, create it first before running `enable --now`.
+- In docker production mode, set `NEXT_PUBLIC_BACKEND_URL` and `NEXT_PUBLIC_APP_URL` in `.env.production` to your public domain.

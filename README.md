@@ -31,6 +31,8 @@ There are two main patterns demonstrated:
 
 For dev/prod environment-file split and systemd switching commands, see [ENVIRONMENT_SWITCHING.md](ENVIRONMENT_SWITCHING.md).
 
+For production all-docker deployment, use `docker-compose.prod.yml` with `.env.production`.
+
 ## API Type Generation Workflow
 
 This project uses automatic TypeScript type generation from the FastAPI OpenAPI schema.

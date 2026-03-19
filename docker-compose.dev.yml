@@ -1,3 +1,4 @@
+name: realtime-dev
 version: '3.8'
 
 services:
@@ -44,4 +45,5 @@ services:
 
 volumes:
   postgres_data:
-    driver: local
+    name: openai-realtime-agents_postgres_data
+    external: true

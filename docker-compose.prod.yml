@@ -1,0 +1,61 @@
+name: realtime-prod
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: realtime-agents-prod-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: realtime_agents_prod
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: realtime-agents-prod-backend
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      BACKEND_PORT: 8001
+      UVICORN_RELOAD: 0
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    ports:
+      - "127.0.0.1:8001:8001"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.prod
+    container_name: realtime-agents-prod-frontend
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      FRONTEND_PORT: 3001
+      # In docker, Next.js server-side calls should target the backend service name.
+      BACKEND_URL: http://backend:8001
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "127.0.0.1:3001:3001"
+
+volumes:
+  postgres_prod_data:
+    name: openai-realtime-agents_postgres_prod_data
+    external: true
