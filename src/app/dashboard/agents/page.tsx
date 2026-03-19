@@ -1,0 +1,87 @@
+import Link from 'next/link';
+import RowActions from './row-actions';
+import type { Agent } from '@/types/api';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
+
+function formatDateTimeEST(dateString: string): string {
+	return new Intl.DateTimeFormat('en-US', {
+		timeZone: 'America/New_York',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+		timeZoneName: 'short',
+	}).format(new Date(dateString));
+}
+
+async function getAgents(): Promise<Agent[]> {
+	try {
+		const baseUrl = await getServerBaseUrl();
+		const res = await fetch(`${baseUrl}/api/backend/agents`, { cache: 'no-store' });
+		const data = await res.json();
+		return Array.isArray(data) ? data : [];
+	} catch {
+		return [];
+	}
+}
+
+export default async function AgentsPage() {
+	const agents = await getAgents();
+	return (
+		<div className="space-y-6 max-w-7xl">
+			<div className="flex items-center justify-between">
+				<div>
+					<h2 className="text-3xl font-bold text-slate-800">Agents</h2>
+					<p className="text-slate-600 mt-1">Manage experiment agents and configurations</p>
+				</div>
+				<Link 
+					href="/dashboard/agents/new" 
+					className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all hover:scale-105"
+				>
+					+ New Agent
+				</Link>
+			</div>
+			<div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+				<div className="overflow-x-auto">
+					<table className="min-w-full">
+						<thead className="bg-gradient-to-r from-slate-50 to-slate-100">
+							<tr>
+								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Display Name</th>
+								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
+								<th className="text-left p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Updated</th>
+								<th className="text-right p-4 text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+							</tr>
+						</thead>
+						<tbody className="divide-y divide-slate-100">
+							{agents.map((p) => (
+								<tr key={p.id} className="hover:bg-blue-50/50 transition-colors">
+									<td className="p-4 text-slate-700 text-sm font-medium">
+										{p.display_name}
+									</td>
+									<td className="p-4">
+										<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+											p.is_active 
+												? 'bg-emerald-100 text-emerald-700' 
+												: 'bg-slate-100 text-slate-600'
+										}`}>
+											{p.is_active ? '● Active' : '○ Inactive'}
+										</span>
+									</td>
+									<td className="p-4 text-slate-500 text-sm">{formatDateTimeEST(p.updated_at || p.created_at)}</td>
+									<td className="p-4">
+										<div className="flex items-center justify-end gap-2">
+											<Link href={`/dashboard/agents/${p.id}/edit`} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">Edit</Link>
+											<RowActions id={p.id} />
+										</div>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	);
+}
