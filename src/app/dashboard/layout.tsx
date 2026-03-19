@@ -16,6 +16,14 @@ export default function ExperimenterLayout({ children }: { children: React.React
           <NavLink href="/dashboard/assignments">Assignments</NavLink>
           <NavLink href="/dashboard/conversations">Conversations</NavLink>
         </nav>
+        <div className="mt-6 pt-5 border-t border-slate-700/80">
+          <Link
+            href="/chat"
+            className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-sm font-medium bg-slate-100 text-slate-900 hover:bg-white transition-colors"
+          >
+            Back To Chat
+          </Link>
+        </div>
       </aside>
       <main className="p-8">{children}</main>
     </div>

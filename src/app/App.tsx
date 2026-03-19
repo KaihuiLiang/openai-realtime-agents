@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -60,6 +61,7 @@ function App() {
   const [isCreatingAgent, setIsCreatingAgent] = useState<boolean>(false);
   const [isSwitchingAgent, setIsSwitchingAgent] = useState<boolean>(false);
   const [agentUIError, setAgentUIError] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isPromptSidebarOpen, setIsPromptSidebarOpen] = useState<boolean>(false);
   const [promptSidebarWidth, setPromptSidebarWidth] = useState<number>(380);
   const isResizingPromptSidebarRef = useRef<boolean>(false);
@@ -190,10 +192,10 @@ function App() {
   useAutoSaveConversation({
     transcriptItems,
     sessionStatus,
+    agentId: selectedBackendAgentId,
     agentConfig: "chatSupervisor",
     agentName: selectedAgentName || null, // Convert empty string to null
     sessionId,
-    experimentId: null, // TODO: Link to experiment when implementing experiment selection
   });
 
   // Debug logging for agent name
@@ -709,8 +711,61 @@ function App() {
 
   return (
     <div className="text-base flex flex-col h-screen bg-gray-100 text-gray-800 relative">
-      <div className="p-5 flex items-center gap-3 flex-wrap">
+      <button
+        aria-label="Close menu backdrop"
+        onClick={() => setIsMenuOpen(false)}
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-200 ${
+          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+      <aside
+        className={`fixed left-0 top-0 z-50 h-full w-72 bg-white border-r border-slate-200 shadow-xl transform transition-transform duration-250 ease-out ${
+          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="mt-5 ml-20 flex items-center justify-between pr-4 py-3 border-b border-slate-200">
+          <div className="text-sm font-semibold text-slate-700">Menu</div>
+          <button
+            onClick={() => setIsMenuOpen(false)}
+            className="text-xs text-slate-500 hover:text-slate-700"
+          >
+            Close
+          </button>
+        </div>
+        <nav className="p-4">
+          <Link
+            href="/dashboard"
+            onClick={() => setIsMenuOpen(false)}
+            className="block rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Dashboard
+          </Link>
+        </nav>
+      </aside>
+
+      <div className="p-5 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            className="relative z-[60] rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-700 hover:bg-slate-50"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
           <label htmlFor="agent-selector" className="text-sm font-medium text-slate-600">
             Active Agent
           </label>

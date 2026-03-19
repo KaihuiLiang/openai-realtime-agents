@@ -83,11 +83,10 @@ export default async function ConversationDetailPage({ params }: { params: Promi
       </div>
 
       {/* Metadata Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-[2.2fr_0.8fr_0.8fr_1fr] gap-4">
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Agent</div>
           <div className="font-semibold text-slate-900">{conversation.agent_name}</div>
-          <div className="text-xs text-slate-500 mt-0.5">{conversation.agent_config}</div>
         </div>
         <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Turns</div>

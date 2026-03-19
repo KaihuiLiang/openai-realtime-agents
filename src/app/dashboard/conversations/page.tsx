@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import type { Conversation } from '@/types/api';
+import type { Agent, Conversation } from '@/types/api';
 import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
+import RowActions from './row-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,18 @@ async function getConversations(): Promise<Conversation[]> {
   }
 }
 
+async function getAgents(): Promise<Agent[]> {
+  try {
+    const baseUrl = await getServerBaseUrl();
+    const res = await fetch(`${baseUrl}/api/backend/agents`, { next: { revalidate: 30 } });
+    if (!res.ok) return [];
+    const data = await safeJson(res);
+    return Array.isArray(data) ? (data as Agent[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -44,7 +57,13 @@ function formatDate(dateString: string): string {
 }
 
 export default async function ConversationsPage() {
-  const conversations = await getConversations();
+  const [conversations, agents] = await Promise.all([
+    getConversations(),
+    getAgents(),
+  ]);
+
+  const displayNameByAgentId = new Map(agents.map((agent) => [agent.id, agent.display_name]));
+  const displayNameByAgentName = new Map(agents.map((agent) => [agent.agent_name, agent.display_name]));
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -82,6 +101,12 @@ export default async function ConversationsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {conversations.map((conv) => {
+                  const conversationWithAgentId = conv as Conversation & { agent_id?: string | null; display_name?: string | null };
+                  const displayName =
+                    conversationWithAgentId.display_name ||
+                    (conversationWithAgentId.agent_id ? displayNameByAgentId.get(conversationWithAgentId.agent_id) : undefined) ||
+                    displayNameByAgentName.get(conv.agent_name) ||
+                    conv.agent_name;
                   const firstMessage = conv.transcript?.messages?.[0];
                   const preview = firstMessage?.content 
                     ? firstMessage.content.slice(0, 80) + (firstMessage.content.length > 80 ? '...' : '')
@@ -90,13 +115,12 @@ export default async function ConversationsPage() {
                   return (
                     <tr key={conv.id} className="hover:bg-indigo-50/50 transition-colors">
                       <td className="p-4">
-                        <div className="font-medium text-slate-900 text-sm">{conv.display_name || conv.agent_name}</div>
-                        {conv.agent_name && conv.display_name && (
+                        <div className="font-medium text-slate-900 text-sm">{displayName}</div>
+                        {displayName !== conv.agent_name && (
                           <div className="text-xs font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-500 inline-block mt-1" title="agent_name">
                             {conv.agent_name}
                           </div>
                         )}
-                        <div className="text-xs text-slate-500">{conv.agent_config}</div>
                       </td>
                       <td className="p-4 max-w-md">
                         <div className="text-sm text-slate-700 truncate">{preview}</div>
@@ -120,6 +144,7 @@ export default async function ConversationsPage() {
                           >
                             View
                           </Link>
+                          <RowActions id={conv.id} />
                         </div>
                       </td>
                     </tr>

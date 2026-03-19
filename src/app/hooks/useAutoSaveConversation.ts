@@ -4,26 +4,22 @@ import { TranscriptItem } from '@/app/types';
 interface SaveConversationParams {
   transcriptItems: TranscriptItem[];
   sessionStatus: string;
+  agentId?: string | null;
   agentConfig: string | null;
   agentName: string | null;
   sessionId: string | null;
-  experimentId?: string | null;
 }
 
-// Use Next.js API proxy in production, direct connection in development
-const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-  ? '' // Use relative path for proxy in production
-  : (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000');
-
-const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : '/api/backend';
+// This hook runs in the browser, so always use the Next.js proxy route.
+const API_BASE = '/api/backend';
 
 export function useAutoSaveConversation({
   transcriptItems,
   sessionStatus,
+  agentId,
   agentConfig,
   agentName,
   sessionId,
-  experimentId,
 }: SaveConversationParams) {
   const sessionStartTimeRef = useRef<number | null>(null);
   const lastSavedCountRef = useRef<number>(0);
@@ -35,11 +31,6 @@ export function useAutoSaveConversation({
       sessionStartTimeRef.current = Date.now();
       lastSavedCountRef.current = 0;
       console.log('🟢 Session started - Auto-save enabled');
-    }
-    
-    if (sessionStatus === 'DISCONNECTED') {
-      console.log('🔴 Session disconnected');
-      sessionStartTimeRef.current = null;
     }
   }, [sessionStatus]);
 
@@ -93,8 +84,8 @@ export function useAutoSaveConversation({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            experiment_id: experimentId,
             session_id: sessionId,
+            agent_id: agentId,
             agent_config: agentConfig,
             agent_name: agentName,
             transcript,
@@ -120,7 +111,11 @@ export function useAutoSaveConversation({
 
     // Save when session disconnects
     if (sessionStatus === 'DISCONNECTED' && sessionStartTimeRef.current) {
-      saveConversation();
+      console.log('🔴 Session disconnected');
+      saveConversation().finally(() => {
+        sessionStartTimeRef.current = null;
+        lastSavedCountRef.current = 0;
+      });
       return;
     }
 
@@ -155,7 +150,7 @@ export function useAutoSaveConversation({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [transcriptItems, sessionStatus, sessionId, agentConfig, agentName, experimentId]);
+  }, [transcriptItems, sessionStatus, sessionId, agentId, agentConfig, agentName]);
 
   return null;
 }
