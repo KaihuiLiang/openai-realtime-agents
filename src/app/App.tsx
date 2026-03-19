@@ -227,6 +227,9 @@ function App() {
     const shouldReconnect = sessionStatus === "CONNECTED" || sessionStatus === "CONNECTING";
     if (!shouldReconnect) return;
 
+    let reconnectAgentConfigSet = selectedAgentConfigSet;
+    let reconnectAgentName = selectedAgentName;
+
     disconnect();
     setSessionStatus("DISCONNECTED");
     await sleep(80);
@@ -234,11 +237,13 @@ function App() {
     // If we have an updated backend agent (e.g. prompt changed), ensure SDK uses it.
     if (agentOverride) {
       const updatedRealtimeAgent = createRealtimeAgentFromBackendAgent(agentOverride);
+      reconnectAgentConfigSet = [updatedRealtimeAgent];
+      reconnectAgentName = updatedRealtimeAgent.name;
       setSelectedAgentName(updatedRealtimeAgent.name);
       setSelectedAgentConfigSet([updatedRealtimeAgent]);
     }
 
-    await connectToRealtime(true);
+    await connectToRealtime(true, reconnectAgentConfigSet, reconnectAgentName);
   };
 
   const handleAgentSelectionChange = async (agentId: string) => {
@@ -521,7 +526,11 @@ function App() {
     return data.client_secret.value;
   };
 
-  const connectToRealtime = async (force = false) => {
+  const connectToRealtime = async (
+    force = false,
+    agentConfigSetOverride?: RealtimeAgent[] | null,
+    selectedAgentNameOverride?: string,
+  ) => {
     if (!force && sessionStatus !== "DISCONNECTED") return;
     setSessionStatus("CONNECTING");
     try {
@@ -529,15 +538,18 @@ function App() {
       if (!EPHEMERAL_KEY) return;
       
       // Use the currently selected agent config set (from backend or hardcoded)
-      if (!selectedAgentConfigSet || selectedAgentConfigSet.length === 0) {
+      const activeAgentConfigSet = agentConfigSetOverride ?? selectedAgentConfigSet;
+      const activeSelectedAgentName = selectedAgentNameOverride ?? selectedAgentName;
+
+      if (!activeAgentConfigSet || activeAgentConfigSet.length === 0) {
         console.error('❌ No agent config available');
         setSessionStatus("DISCONNECTED");
         return;
       }
       
       // Ensure the selectedAgentName is first so that it becomes the root
-      const reorderedAgents = [...selectedAgentConfigSet];
-      const idx = reorderedAgents.findIndex((a) => a.name === selectedAgentName);
+      const reorderedAgents = [...activeAgentConfigSet];
+      const idx = reorderedAgents.findIndex((a) => a.name === activeSelectedAgentName);
       if (idx > 0) {
         const [agent] = reorderedAgents.splice(idx, 1);
         reorderedAgents.unshift(agent);
