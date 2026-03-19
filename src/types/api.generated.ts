@@ -539,6 +539,8 @@ export type components = {
         ConversationLog: {
             /** Agent Config */
             agent_config: string;
+            /** Agent Id */
+            agent_id?: string | null;
             /** Agent Name */
             agent_name: string;
             /**
@@ -548,8 +550,6 @@ export type components = {
             created_at: string;
             /** Duration */
             duration: number;
-            /** Experiment Id */
-            experiment_id?: string | null;
             /** Extra Metadata */
             extra_metadata?: Record<string, never> | null;
             /** Id */
@@ -571,12 +571,12 @@ export type components = {
         ConversationLogCreate: {
             /** Agent Config */
             agent_config: string;
+            /** Agent Id */
+            agent_id?: string | null;
             /** Agent Name */
             agent_name: string;
             /** Duration */
             duration: number;
-            /** Experiment Id */
-            experiment_id?: string | null;
             /** Extra Metadata */
             extra_metadata?: Record<string, never> | null;
             /** Participant Id */
@@ -1122,7 +1122,7 @@ export interface operations {
         parameters: {
             query?: {
                 agent_config?: string | null;
-                experiment_id?: string | null;
+                agent_id?: string | null;
                 limit?: number;
             };
             header?: never;

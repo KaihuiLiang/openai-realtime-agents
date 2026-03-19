@@ -46,12 +46,12 @@ class Agent(AgentBase):
 # ConversationLog schemas
 class ConversationLogBase(BaseModel):
     session_id: str
+    agent_id: Optional[str] = None
     agent_config: str
     agent_name: str
     transcript: Dict[str, Any]
     duration: float
     turn_count: int
-    experiment_id: Optional[str] = None
     participant_id: Optional[str] = None
     user_satisfaction: Optional[int] = Field(None, ge=1, le=5)
     task_completed: Optional[bool] = None
