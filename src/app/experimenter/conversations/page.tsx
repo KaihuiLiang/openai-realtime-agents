@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Conversation } from '@/types/api';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,8 @@ async function safeJson<T = any>(res: Response): Promise<T | null> {
 
 async function getConversations(): Promise<Conversation[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/conversations`, { next: { revalidate: 30 } });
+    const baseUrl = await getServerBaseUrl();
+    const res = await fetch(`${baseUrl}/api/backend/conversations`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     const data = await safeJson(res);
     return Array.isArray(data) ? (data as Conversation[]) : [];
@@ -32,10 +34,12 @@ function formatDuration(seconds: number): string {
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZoneName: 'short',
   }).format(date);
 }
 

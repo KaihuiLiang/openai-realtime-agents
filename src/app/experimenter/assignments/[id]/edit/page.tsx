@@ -1,8 +1,9 @@
 import EditAssignmentForm, { Assignment, Participant, Agent } from './EditAssignmentForm';
 import { notFound } from 'next/navigation';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
 
 async function fetchAssignment(id: string): Promise<Assignment | null> {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const base = await getServerBaseUrl();
   try {
     const res = await fetch(`${base}/api/backend/assignments/${id}`, { cache: 'no-store' });
     if (res.status === 404) return null;
@@ -25,7 +26,7 @@ async function fetchAssignment(id: string): Promise<Assignment | null> {
 }
 
 async function fetchParticipants(): Promise<Participant[]> {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const base = await getServerBaseUrl();
   try {
     const res = await fetch(`${base}/api/backend/participants`, { cache: 'no-store' });
     if (!res.ok) return [];
@@ -37,7 +38,7 @@ async function fetchParticipants(): Promise<Participant[]> {
 }
 
 async function fetchAgents(): Promise<Agent[]> {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const base = await getServerBaseUrl();
   try {
     const res = await fetch(`${base}/api/backend/agents`, { cache: 'no-store' });
     if (!res.ok) return [];

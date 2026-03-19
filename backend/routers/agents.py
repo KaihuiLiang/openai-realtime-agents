@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import datetime, timezone
 
 import sys
 sys.path.append('..')
@@ -72,15 +73,18 @@ async def create_agent(
 ):
     """Create a new agent"""
     
-    # If setting as active, deactivate others for the same agent
+    # If setting as active, deactivate other agents in the same config.
     if agent_data.is_active:
         db.query(models.Agent).filter(
             models.Agent.agent_config == agent_data.agent_config,
-            models.Agent.agent_name == agent_data.agent_name,
             models.Agent.is_active == True
         ).update({"is_active": False})
-    
-    agent = models.Agent(**agent_data.model_dump())
+
+    payload = agent_data.model_dump()
+    now = datetime.now(timezone.utc)
+    payload["updated_at"] = now
+
+    agent = models.Agent(**payload)
     db.add(agent)
     db.commit()
     db.refresh(agent)
@@ -101,11 +105,10 @@ async def update_agent(
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
-    # If setting as active, deactivate others for the same agent
+    # If setting as active, deactivate other agents in the same config.
     if agent_data.is_active:
         db.query(models.Agent).filter(
             models.Agent.agent_config == agent.agent_config,
-            models.Agent.agent_name == agent.agent_name,
             models.Agent.is_active == True,
             models.Agent.id != agent_id
         ).update({"is_active": False})
@@ -114,6 +117,9 @@ async def update_agent(
     update_data = agent_data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(agent, key, value)
+
+    # Keep updated_at deterministic across DB engines.
+    agent.updated_at = datetime.now(timezone.utc)
     
     db.commit()
     db.refresh(agent)

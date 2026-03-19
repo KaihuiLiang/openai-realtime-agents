@@ -1,9 +1,24 @@
 import Link from 'next/link';
 import RowActions from './row-actions';
 import type { Participant } from '@/types/api';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
+
+function formatDateTimeEST(dateString: string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZoneName: 'short',
+  }).format(new Date(dateString));
+}
 
 async function getParticipants(): Promise<Participant[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/participants`, { next: { revalidate: 30 } });
+  const baseUrl = await getServerBaseUrl();
+  const res = await fetch(`${baseUrl}/api/backend/participants`, { next: { revalidate: 30 } });
   const data = await res.json();
   return Array.isArray(data) ? data : [];
 }
@@ -52,7 +67,7 @@ export default async function ParticipantsPage() {
                       {p.is_guest ? '👤 Guest' : '🔬 Participant'}
                     </span>
                   </td>
-                  <td className="p-4 text-slate-500 text-sm">{new Date(p.created_at).toLocaleString()}</td>
+                  <td className="p-4 text-slate-500 text-sm">{formatDateTimeEST(p.created_at)}</td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/experimenter/participants/${p.id}/edit`} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">Edit</Link>

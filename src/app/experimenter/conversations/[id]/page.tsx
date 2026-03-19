@@ -44,11 +44,13 @@ function formatDuration(seconds: number): string {
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZoneName: 'short',
   }).format(date);
 }
 

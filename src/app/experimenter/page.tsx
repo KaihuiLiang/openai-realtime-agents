@@ -1,5 +1,7 @@
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
+
 async function getCounts() {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const base = await getServerBaseUrl();
   const [agentsRes, participantsRes, assignmentsRes] = await Promise.all([
     fetch(`${base}/api/backend/agents`, { next: { revalidate: 30 } }),
     fetch(`${base}/api/backend/participants`, { next: { revalidate: 30 } }),

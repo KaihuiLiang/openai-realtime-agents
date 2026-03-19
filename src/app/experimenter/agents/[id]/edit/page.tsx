@@ -1,9 +1,11 @@
 import EditAgentForm, { Agent } from './EditAgentForm';
 import { notFound } from 'next/navigation';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
 
 async function fetchAgent(id: string): Promise<Agent | null> {
 	try {
-		const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/agents/${id}`, { cache: 'no-store' });
+		const baseUrl = await getServerBaseUrl();
+		const res = await fetch(`${baseUrl}/api/backend/agents/${id}`, { cache: 'no-store' });
 		if (res.status === 404) return null;
 		if (!res.ok) return null;
 		const agent = await res.json();

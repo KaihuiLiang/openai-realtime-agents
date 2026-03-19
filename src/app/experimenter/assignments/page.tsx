@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import RowActions from './row-actions';
 import type { Assignment } from '@/types/api';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
 
 // Robust JSON parsing to handle non-JSON error bodies (e.g., "Internal Server Error")
 async function safeJson<T = any>(res: Response): Promise<T | null> {
@@ -19,7 +20,8 @@ async function safeJson<T = any>(res: Response): Promise<T | null> {
 
 async function getAssignments(): Promise<Assignment[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/assignments`, { next: { revalidate: 30 } });
+    const baseUrl = await getServerBaseUrl();
+    const res = await fetch(`${baseUrl}/api/backend/assignments`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     const data = await safeJson(res);
     return Array.isArray(data) ? (data as Assignment[]) : [];
@@ -33,7 +35,8 @@ export default async function AssignmentsPage() {
   // Fetch participants to map foreign/external IDs
   let participants: any[] = [];
   try {
-    const participantsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/backend/participants`, { next: { revalidate: 30 } });
+    const baseUrl = await getServerBaseUrl();
+    const participantsRes = await fetch(`${baseUrl}/api/backend/participants`, { next: { revalidate: 30 } });
     if (participantsRes.ok) {
       const participantsData = await safeJson(participantsRes);
       participants = Array.isArray(participantsData) ? participantsData : [];
