@@ -153,7 +153,7 @@ export function useRealtimeSession(callbacks: RealtimeSessionCallbacks = {}) {
             return pc;
           },
         }),
-        model: 'gpt-realtime-mini',
+        model: 'gpt-realtime',
         config: {
           inputAudioTranscription: {
             // Use the widely-available mini transcribe model to avoid 400s from unsupported models
