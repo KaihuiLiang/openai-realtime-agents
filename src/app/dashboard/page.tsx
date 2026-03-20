@@ -3,9 +3,9 @@ import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
 async function getCounts() {
   const base = await getServerBaseUrl();
   const [agentsRes, participantsRes, assignmentsRes] = await Promise.all([
-    fetch(`${base}/api/backend/agents`, { next: { revalidate: 30 } }),
-    fetch(`${base}/api/backend/participants`, { next: { revalidate: 30 } }),
-    fetch(`${base}/api/backend/assignments`, { next: { revalidate: 30 } }),
+    fetch(`${base}/api/backend/agents`, { cache: 'no-store' }),
+    fetch(`${base}/api/backend/participants`, { cache: 'no-store' }),
+    fetch(`${base}/api/backend/assignments`, { cache: 'no-store' }),
   ]);
   const [agents, participants, assignments] = await Promise.all([
     agentsRes.json().catch(() => ([])),

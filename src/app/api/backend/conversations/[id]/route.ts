@@ -16,6 +16,25 @@ async function parseResponsePayload(res: Response) {
   }
 }
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const res = await fetch(`${BACKEND_URL}/api/conversations/${id}`, {
+      cache: 'no-store',
+    });
+
+    const data = await parseResponsePayload(res);
+
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    console.error('Proxy GET /conversations/:id error:', error);
+    return NextResponse.json({ detail: 'Failed to fetch conversation' }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

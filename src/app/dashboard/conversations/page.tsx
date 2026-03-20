@@ -17,7 +17,7 @@ async function safeJson<T = any>(res: Response): Promise<T | null> {
 async function getConversations(): Promise<Conversation[]> {
   try {
     const baseUrl = await getServerBaseUrl();
-    const res = await fetch(`${baseUrl}/api/backend/conversations`, { next: { revalidate: 30 } });
+    const res = await fetch(`${baseUrl}/api/backend/conversations`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await safeJson(res);
     return Array.isArray(data) ? (data as Conversation[]) : [];
@@ -29,7 +29,7 @@ async function getConversations(): Promise<Conversation[]> {
 async function getAgents(): Promise<Agent[]> {
   try {
     const baseUrl = await getServerBaseUrl();
-    const res = await fetch(`${baseUrl}/api/backend/agents`, { next: { revalidate: 30 } });
+    const res = await fetch(`${baseUrl}/api/backend/agents`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await safeJson(res);
     return Array.isArray(data) ? (data as Agent[]) : [];

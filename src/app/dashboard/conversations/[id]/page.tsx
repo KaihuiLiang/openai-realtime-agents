@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getServerBaseUrl } from '@/lib/getServerBaseUrl';
 
 type Message = {
   role: string;
@@ -25,9 +26,9 @@ type Conversation = {
 };
 
 async function getConversation(id: string): Promise<Conversation | null> {
-  const base = process.env.BACKEND_URL || 'http://localhost:8000';
   try {
-  const res = await fetch(`${base}/api/conversations/${id}`, { next: { revalidate: 30 } });
+    const base = await getServerBaseUrl();
+    const res = await fetch(`${base}/api/backend/conversations/${id}`, { cache: 'no-store' });
     if (!res.ok) return null;
     return await res.json();
   } catch {
