@@ -96,8 +96,11 @@ main() {
   require_file "$ENV_FILE"
   require_file "$COMPOSE_FILE"
 
-  echo "[INFO] Redeploying production stack with rebuild..."
-  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --force-recreate
+  echo "[INFO] Building images (existing containers remain live)..."
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" build
+
+  echo "[INFO] Switching to new containers..."
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --force-recreate
 
   wait_for_db_healthy
   wait_for_container "$BACKEND_CONTAINER" "running"
