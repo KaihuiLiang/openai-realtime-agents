@@ -10,7 +10,7 @@ export default function NewAgentPage() {
 		agent_name: 'chatAgent',
 		system_prompt: '',
 		instructions: '',
-		temperature: 0.8,
+		temperature: 0.5,
 		is_active: false,
 	});
 	const [submitting, setSubmitting] = useState(false);
@@ -62,7 +62,7 @@ export default function NewAgentPage() {
 						name="display_name" 
 						value={form.display_name} 
 						onChange={handleChange} 
-						className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+						className="w-full border-2 border-slate-200 rounded-xl p-3 bg-white text-black placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
 						required 
 					/>
 				</div>
@@ -72,7 +72,7 @@ export default function NewAgentPage() {
 						name="agent_name" 
 						value={form.agent_name} 
 						onChange={handleChange} 
-						className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+						className="w-full border-2 border-slate-200 rounded-xl p-3 bg-white text-black placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
 						required 
 					/>
 				</div>
@@ -82,7 +82,7 @@ export default function NewAgentPage() {
 						name="system_prompt" 
 						value={form.system_prompt} 
 						onChange={handleChange} 
-						className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none font-mono text-sm" 
+						className="w-full border-2 border-slate-200 rounded-xl p-3 bg-white text-black placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none font-mono text-sm" 
 						rows={8}
 						placeholder="You are a helpful assistant..."
 						required 
@@ -94,7 +94,7 @@ export default function NewAgentPage() {
 						name="instructions" 
 						value={form.instructions} 
 						onChange={handleChange} 
-						className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none" 
+						className="w-full border-2 border-slate-200 rounded-xl p-3 bg-white text-black placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none" 
 						rows={4}
 						placeholder="Additional instructions..."
 					/>
@@ -108,7 +108,7 @@ export default function NewAgentPage() {
 							name="temperature" 
 							value={form.temperature as any} 
 							onChange={handleChange} 
-							className="w-full border-2 border-slate-200 rounded-xl p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none" 
+							className="w-full border-2 border-slate-200 rounded-xl p-3 bg-white text-black placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none" 
 						/>
 					</div>
 					<label className="inline-flex items-center gap-3 cursor-pointer bg-slate-50 p-4 rounded-xl hover:bg-slate-100 transition-colors mt-6">
