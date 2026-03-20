@@ -12,6 +12,7 @@ import { TranscriptItem } from "@/app/types";
 
 type TranscriptContextValue = {
   transcriptItems: TranscriptItem[];
+  clearTranscriptItems: () => void;
   addTranscriptMessage: (
     itemId: string,
     role: "user" | "assistant",
@@ -95,6 +96,10 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
     ]);
   };
 
+  const clearTranscriptItems: TranscriptContextValue["clearTranscriptItems"] = () => {
+    setTranscriptItems([]);
+  };
+
   const toggleTranscriptItemExpand: TranscriptContextValue["toggleTranscriptItemExpand"] = (itemId) => {
     setTranscriptItems((prev) =>
       prev.map((log) =>
@@ -115,6 +120,7 @@ export const TranscriptProvider: FC<PropsWithChildren> = ({ children }) => {
     <TranscriptContext.Provider
       value={{
         transcriptItems,
+        clearTranscriptItems,
         addTranscriptMessage,
         updateTranscriptMessage,
         addTranscriptBreadcrumb,

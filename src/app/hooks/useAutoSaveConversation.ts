@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { TranscriptItem } from '@/app/types';
 
 interface SaveConversationParams {
@@ -24,97 +24,145 @@ export function useAutoSaveConversation({
   const sessionStartTimeRef = useRef<number | null>(null);
   const lastSavedCountRef = useRef<number>(0);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const latestParamsRef = useRef<SaveConversationParams>({
+    transcriptItems,
+    sessionStatus,
+    agentId,
+    agentConfig,
+    agentName,
+    sessionId,
+  });
+  const activeSessionMetaRef = useRef<{
+    sessionId: string;
+    agentId: string | null;
+    agentConfig: string;
+    agentName: string;
+  } | null>(null);
+
+  useEffect(() => {
+    latestParamsRef.current = {
+      transcriptItems,
+      sessionStatus,
+      agentId,
+      agentConfig,
+      agentName,
+      sessionId,
+    };
+  }, [transcriptItems, sessionStatus, agentId, agentConfig, agentName, sessionId]);
+
+  const saveConversation = useCallback(async (source: 'disconnect' | 'periodic' | 'unmount') => {
+    const latestParams = latestParamsRef.current;
+    const activeSessionMeta = activeSessionMetaRef.current;
+    const resolvedSessionId = activeSessionMeta?.sessionId ?? latestParams.sessionId;
+    const resolvedAgentId = activeSessionMeta?.agentId ?? latestParams.agentId ?? null;
+    const resolvedAgentConfig = activeSessionMeta?.agentConfig ?? latestParams.agentConfig;
+    const resolvedAgentName = activeSessionMeta?.agentName ?? latestParams.agentName;
+
+    const messages = latestParams.transcriptItems.filter(
+      item => item.type === 'MESSAGE' && !item.isHidden
+    );
+
+    console.log('💾 Attempting to save conversation...', {
+      source,
+      sessionId: resolvedSessionId,
+      agentId: resolvedAgentId,
+      agentConfig: resolvedAgentConfig,
+      agentName: resolvedAgentName,
+      messageCount: messages.length,
+    });
+
+    if (!resolvedSessionId || !resolvedAgentConfig || !resolvedAgentName) {
+      console.warn('⚠️ Cannot save: missing required fields', {
+        source,
+        sessionId: resolvedSessionId,
+        agentId: resolvedAgentId,
+        agentConfig: resolvedAgentConfig,
+        agentName: resolvedAgentName,
+      });
+      return;
+    }
+
+    if (messages.length === 0) {
+      console.log('ℹ️ No messages to save');
+      return;
+    }
+
+    console.log(`📝 Saving ${messages.length} messages...`);
+
+    const duration = sessionStartTimeRef.current
+      ? (Date.now() - sessionStartTimeRef.current) / 1000
+      : 0;
+
+    const turnCount = messages.length;
+
+    const transcript = {
+      messages: messages.map(item => ({
+        role: item.role,
+        content: item.title || '',
+        timestamp: item.timestamp,
+      })),
+    };
+
+    try {
+      const response = await fetch(`${API_BASE}/conversations/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        keepalive: true,
+        body: JSON.stringify({
+          session_id: resolvedSessionId,
+          agent_id: resolvedAgentId,
+          agent_config: resolvedAgentConfig,
+          agent_name: resolvedAgentName,
+          transcript,
+          duration,
+          turn_count: turnCount,
+          extra_metadata: {
+            saved_at: new Date().toISOString(),
+            auto_saved: true,
+            save_source: source,
+          },
+        }),
+      });
+
+      if (response.ok) {
+        console.log('✅ Conversation saved to database');
+        lastSavedCountRef.current = messages.length;
+      } else {
+        console.error('❌ Failed to save conversation:', await response.text());
+      }
+    } catch (error) {
+      console.error('❌ Error saving conversation:', error);
+    }
+  }, []);
 
   // Track session start time
   useEffect(() => {
     if (sessionStatus === 'CONNECTED' && !sessionStartTimeRef.current) {
       sessionStartTimeRef.current = Date.now();
       lastSavedCountRef.current = 0;
+      if (sessionId && agentConfig && agentName) {
+        activeSessionMetaRef.current = {
+          sessionId,
+          agentId: agentId ?? null,
+          agentConfig,
+          agentName,
+        };
+      }
       console.log('🟢 Session started - Auto-save enabled');
     }
-  }, [sessionStatus]);
+  }, [sessionStatus, sessionId, agentId, agentConfig, agentName]);
 
   // Save conversation when session ends or periodically
   useEffect(() => {
-    const saveConversation = async () => {
-      console.log('💾 Attempting to save conversation...', {
-        sessionId,
-        agentConfig,
-        agentName,
-        messageCount: transcriptItems.filter(item => item.type === 'MESSAGE' && !item.isHidden).length
-      });
-      
-      if (!sessionId || !agentConfig || !agentName) {
-        console.warn('⚠️ Cannot save: missing required fields', { sessionId, agentConfig, agentName });
-        return;
-      }
-      
-      // Filter out breadcrumbs and hidden messages
-      const messages = transcriptItems.filter(
-        item => item.type === 'MESSAGE' && !item.isHidden
-      );
-      
-      if (messages.length === 0) {
-        console.log('ℹ️ No messages to save');
-        return;
-      }
-      
-      console.log(`📝 Saving ${messages.length} messages...`);
-      
-      // Calculate metrics
-      const duration = sessionStartTimeRef.current 
-        ? (Date.now() - sessionStartTimeRef.current) / 1000 
-        : 0;
-      
-      const turnCount = messages.length;
-      
-      // Format transcript for backend
-      const transcript = {
-        messages: messages.map(item => ({
-          role: item.role,
-          content: item.title || '',
-          timestamp: item.timestamp,
-        })),
-      };
-
-      try {
-        const response = await fetch(`${API_BASE}/conversations/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            session_id: sessionId,
-            agent_id: agentId,
-            agent_config: agentConfig,
-            agent_name: agentName,
-            transcript,
-            duration,
-            turn_count: turnCount,
-            extra_metadata: {
-              saved_at: new Date().toISOString(),
-              auto_saved: true,
-            },
-          }),
-        });
-
-        if (response.ok) {
-          console.log('✅ Conversation saved to database');
-          lastSavedCountRef.current = messages.length;
-        } else {
-          console.error('❌ Failed to save conversation:', await response.text());
-        }
-      } catch (error) {
-        console.error('❌ Error saving conversation:', error);
-      }
-    };
-
     // Save when session disconnects
     if (sessionStatus === 'DISCONNECTED' && sessionStartTimeRef.current) {
       console.log('🔴 Session disconnected');
-      saveConversation().finally(() => {
+      saveConversation('disconnect').finally(() => {
         sessionStartTimeRef.current = null;
         lastSavedCountRef.current = 0;
+        activeSessionMetaRef.current = null;
       });
       return;
     }
@@ -129,7 +177,7 @@ export function useAutoSaveConversation({
       
       // Save if 10 or more new messages
       if (newMessageCount >= 10) {
-        saveConversation();
+        saveConversation('periodic');
         return;
       }
       
@@ -140,7 +188,7 @@ export function useAutoSaveConversation({
       
       saveTimeoutRef.current = setTimeout(() => {
         if (newMessageCount > 0) {
-          saveConversation();
+          saveConversation('periodic');
         }
       }, 30000); // 30 seconds
     }
@@ -150,7 +198,19 @@ export function useAutoSaveConversation({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [transcriptItems, sessionStatus, sessionId, agentId, agentConfig, agentName]);
+  }, [transcriptItems, sessionStatus, saveConversation]);
+
+  // Persist one final time when leaving the chat page without explicitly disconnecting.
+  useEffect(() => {
+    return () => {
+      if (sessionStartTimeRef.current) {
+        void saveConversation('unmount');
+        sessionStartTimeRef.current = null;
+        lastSavedCountRef.current = 0;
+        activeSessionMetaRef.current = null;
+      }
+    };
+  }, [saveConversation]);
 
   return null;
 }

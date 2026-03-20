@@ -42,6 +42,7 @@ function App() {
 
   const {
     transcriptItems,
+    clearTranscriptItems,
     addTranscriptMessage,
     addTranscriptBreadcrumb,
   } = useTranscript();
@@ -66,6 +67,7 @@ function App() {
   const [isPromptSidebarOpen, setIsPromptSidebarOpen] = useState<boolean>(false);
   const [promptSidebarWidth, setPromptSidebarWidth] = useState<number>(380);
   const isResizingPromptSidebarRef = useRef<boolean>(false);
+  const hasInitializedAgentsRef = useRef<boolean>(false);
 
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   // Ref to identify whether the latest agent switch came from an automatic handoff
@@ -160,7 +162,7 @@ function App() {
   const [sessionStatus, setSessionStatus] =
     useState<SessionStatus>("DISCONNECTED");
 
-  const [sessionId] = useState<string>(() => uuidv4()); // Generate unique session ID
+  const [sessionId, setSessionId] = useState<string>(() => uuidv4()); // Regenerated when starting a new conversation session
   const [isEventsPaneExpanded, setIsEventsPaneExpanded] =
     useState<boolean>(false);
   const [userText, setUserText] = useState<string>("");
@@ -224,7 +226,10 @@ function App() {
     return `${normalizedBase || 'chat_agent'}_${suffix}`;
   };
 
-  const reconnectWithCurrentSelection = async (agentOverride?: Agent) => {
+  const reconnectWithCurrentSelection = async (
+    agentOverride?: Agent,
+    options?: { resetSessionId?: boolean },
+  ) => {
     const shouldReconnect = sessionStatus === "CONNECTED" || sessionStatus === "CONNECTING";
     if (!shouldReconnect) return;
 
@@ -234,6 +239,10 @@ function App() {
     disconnect();
     setSessionStatus("DISCONNECTED");
     await sleep(80);
+
+    if (options?.resetSessionId) {
+      setSessionId(uuidv4());
+    }
 
     // If we have an updated backend agent (e.g. prompt changed), ensure SDK uses it.
     if (agentOverride) {
@@ -250,6 +259,9 @@ function App() {
   const handleAgentSelectionChange = async (agentId: string) => {
     const agentData = availableAgents.find((agent) => agent.id === agentId);
     if (!agentData) return;
+
+    const shouldResetSessionAfterReconnect =
+      sessionStatus === "CONNECTED" || sessionStatus === "CONNECTING";
 
     try {
       setAgentUIError(null);
@@ -287,13 +299,21 @@ function App() {
       setPromptDraft(activatedAgent.system_prompt || "");
       setTemperatureDraft(String(activatedAgent.temperature ?? 0.8));
       setSidebarMode('edit');
+
+      clearTranscriptItems();
       addTranscriptBreadcrumb(`Agent: ${backendAgent.name}`, {
         source: 'backend',
         agentId: activatedAgent.id,
         systemPrompt: activatedAgent.system_prompt,
       });
 
-      await reconnectWithCurrentSelection(activatedAgent);
+      if (!shouldResetSessionAfterReconnect) {
+        setSessionId(uuidv4());
+      }
+
+      await reconnectWithCurrentSelection(activatedAgent, {
+        resetSessionId: shouldResetSessionAfterReconnect,
+      });
     } catch (error) {
       console.error('❌ Failed to switch agent:', error);
       setAgentUIError(error instanceof Error ? error.message : 'Failed to switch agent. Please try again.');
@@ -363,6 +383,9 @@ function App() {
   };
 
   const handleCreateAgent = async () => {
+    const shouldResetSessionAfterReconnect =
+      sessionStatus === "CONNECTED" || sessionStatus === "CONNECTING";
+
     try {
       setAgentUIError(null);
       setIsCreatingAgent(true);
@@ -424,12 +447,19 @@ function App() {
       setAddPromptDraft('');
       setAddTemperatureDraft('0.8');
 
+      clearTranscriptItems();
       addTranscriptBreadcrumb(`Agent created: ${newAgent.agent_name}`, {
         source: 'backend',
         agentId: newAgent.id,
       });
 
-      await reconnectWithCurrentSelection(newAgent);
+      if (!shouldResetSessionAfterReconnect) {
+        setSessionId(uuidv4());
+      }
+
+      await reconnectWithCurrentSelection(newAgent, {
+        resetSessionId: shouldResetSessionAfterReconnect,
+      });
     } catch (error) {
       console.error('❌ Failed to create agent:', error);
       setAgentUIError(error instanceof Error ? error.message : 'Failed to create agent.');
@@ -440,6 +470,9 @@ function App() {
 
   // Load all backend agents for chat page switching/editing controls.
   useEffect(() => {
+    if (hasInitializedAgentsRef.current) return;
+    hasInitializedAgentsRef.current = true;
+
     const loadAgents = async () => {
       try {
         setAgentUIError(null);
