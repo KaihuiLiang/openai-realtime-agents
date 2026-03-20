@@ -51,6 +51,7 @@ function App() {
   const [selectedAgentConfigSet, setSelectedAgentConfigSet] = useState<RealtimeAgent[] | null>(chatSupervisorScenario);
   const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [selectedBackendAgentId, setSelectedBackendAgentId] = useState<string | null>(null);
+  const [editDisplayNameDraft, setEditDisplayNameDraft] = useState<string>("");
   const [promptDraft, setPromptDraft] = useState<string>("");
   const [temperatureDraft, setTemperatureDraft] = useState<string>("0.8");
   const [addDisplayNameDraft, setAddDisplayNameDraft] = useState<string>("");
@@ -282,6 +283,7 @@ function App() {
       setSelectedBackendAgentId(activatedAgent.id);
       setSelectedAgentName(backendAgent.name);
       setSelectedAgentConfigSet([backendAgent]);
+      setEditDisplayNameDraft(activatedAgent.display_name || "");
       setPromptDraft(activatedAgent.system_prompt || "");
       setTemperatureDraft(String(activatedAgent.temperature ?? 0.8));
       setSidebarMode('edit');
@@ -315,10 +317,19 @@ function App() {
         throw new Error('Temperature must be a valid number.');
       }
 
+      const trimmedDisplayName = editDisplayNameDraft.trim();
+      if (!trimmedDisplayName) {
+        throw new Error('Display name cannot be empty.');
+      }
+
       const res = await fetch(`/api/backend/agents/${selectedBackendAgentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ system_prompt: promptDraft, temperature: parsedTemperature }),
+        body: JSON.stringify({
+          display_name: trimmedDisplayName,
+          system_prompt: promptDraft,
+          temperature: parsedTemperature,
+        }),
       });
 
       if (!res.ok) {
@@ -334,6 +345,7 @@ function App() {
       const updatedRealtimeAgent = createRealtimeAgentFromBackendAgent(updatedAgent);
       setSelectedAgentName(updatedRealtimeAgent.name);
       setSelectedAgentConfigSet([updatedRealtimeAgent]);
+      setEditDisplayNameDraft(updatedAgent.display_name || "");
       setPromptDraft(updatedAgent.system_prompt || "");
       setTemperatureDraft(String(updatedAgent.temperature ?? 0.8));
       addTranscriptBreadcrumb(`Agent prompt updated: ${updatedAgent.agent_name}`, {
@@ -404,6 +416,7 @@ function App() {
       setSelectedBackendAgentId(newAgent.id);
       setSelectedAgentName(realtimeAgent.name);
       setSelectedAgentConfigSet([realtimeAgent]);
+      setEditDisplayNameDraft(newAgent.display_name || '');
       setPromptDraft(newAgent.system_prompt || '');
       setTemperatureDraft(String(newAgent.temperature ?? 0.8));
       setSidebarMode('edit');
@@ -453,6 +466,7 @@ function App() {
           setSelectedBackendAgentId(initialAgent.id);
           setSelectedAgentName(backendAgent.name);
           setSelectedAgentConfigSet([backendAgent]);
+          setEditDisplayNameDraft(initialAgent.display_name || "");
           setPromptDraft(initialAgent.system_prompt || "");
           setTemperatureDraft(String(initialAgent.temperature ?? 0.8));
           setSidebarMode('edit');
@@ -466,6 +480,7 @@ function App() {
           setSelectedBackendAgentId(null);
           setSelectedAgentName(chatSupervisorScenario[0]?.name || "");
           setSelectedAgentConfigSet(chatSupervisorScenario);
+          setEditDisplayNameDraft("");
           setPromptDraft("");
           setTemperatureDraft("0.8");
           addTranscriptBreadcrumb(`Agent: ${chatSupervisorScenario[0]?.name}`, { source: 'hardcoded' });
@@ -477,6 +492,7 @@ function App() {
         setSelectedBackendAgentId(null);
         setSelectedAgentName(chatSupervisorScenario[0]?.name || "");
         setSelectedAgentConfigSet(chatSupervisorScenario);
+        setEditDisplayNameDraft("");
         setPromptDraft("");
         setTemperatureDraft("0.8");
         addTranscriptBreadcrumb(`Agent: ${chatSupervisorScenario[0]?.name}`, { source: 'hardcoded', reason: 'backend_error', error: String(error) });
@@ -874,6 +890,23 @@ function App() {
                     value={addDisplayNameDraft}
                     onChange={(e) => setAddDisplayNameDraft(e.target.value)}
                     disabled={isSwitchingAgent || isSavingPrompt || isCreatingAgent}
+                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-400"
+                    placeholder="Customer Support Coach"
+                  />
+                </>
+              )}
+
+              {sidebarMode === 'edit' && (
+                <>
+                  <label htmlFor="agent-display-name-edit" className="text-xs font-semibold text-slate-600">
+                    Display Name
+                  </label>
+                  <input
+                    id="agent-display-name-edit"
+                    type="text"
+                    value={editDisplayNameDraft}
+                    onChange={(e) => setEditDisplayNameDraft(e.target.value)}
+                    disabled={isSwitchingAgent || isSavingPrompt || isCreatingAgent || !selectedBackendAgentId}
                     className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder="Customer Support Coach"
                   />
