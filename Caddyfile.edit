@@ -1,0 +1,30 @@
+cbs-voicechat.duckdns.org {
+	encode gzip
+
+	# 後端 API 與 OAuth 走 3080
+	@api path /api* /oauth*
+	handle @api {
+		reverse_proxy http://localhost:3080
+	}
+
+	# 其餘（前端）走 3090
+	handle {
+		reverse_proxy http://localhost:3090
+	}
+}
+
+cbs-voicechatbot.duckdns.org {
+	encode gzip
+	reverse_proxy http://localhost:3001 {
+		transport http {
+			read_timeout 120s
+			write_timeout 120s
+			dial_timeout 30s
+		}
+	}
+}
+
+cbs-voicechatbot-dev.duckdns.org {
+	encode gzip
+	reverse_proxy http://localhost:3000
+}
