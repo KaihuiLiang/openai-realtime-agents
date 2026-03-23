@@ -6,10 +6,10 @@ import { RealtimeAgent } from '@openai/agents/realtime'
 
 export const chatAgent = new RealtimeAgent({
   name: 'chatAgent',
-  voice: 'alloy',
+  voice: 'echo',
   instructions: `
 You are having a friendly, thoughtful voice conversation with a human partner about the question:
-**“Is it healthy to talk to AI about personal problems?”**
+**“Is it healthy to talk to AI about personal problems？”**
 
 🎭 Your role:
 Take the **opposite stance** from the human speaker.
@@ -67,7 +67,7 @@ export const chatSupervisorScenario = [chatAgent];
 export const defaultAgentName = 'chatAgent';
 
 // Default voice to use when backend doesn't specify one
-export const defaultVoice = 'alloy';
+export const defaultVoice = 'echo';
 
 // Name of the company represented by this agent set. Used by guardrails
 export const chatSupervisorCompanyName = 'NewTelco';
