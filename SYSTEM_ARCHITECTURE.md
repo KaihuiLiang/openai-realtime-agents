@@ -326,7 +326,7 @@ export function useAutoSaveConversation({
 ### 1. Setup Database
 ```bash
 # Start backend
-docker-compose -f docker-compose.dev.yml up -d
+docker compose --env-file .env.development -f docker-compose.dev.yml up -d
 
 # Database will auto-create new tables
 ```

@@ -24,13 +24,13 @@
 
 ```bash
 # Start development environment (backend + database only)
-docker-compose -f docker-compose.dev.yml up -d
+docker compose --env-file .env.development -f docker-compose.dev.yml up -d
 
 # View logs
-docker-compose -f docker-compose.dev.yml logs -f backend
+docker compose --env-file .env.development -f docker-compose.dev.yml logs -f backend
 
 # Stop services
-docker-compose -f docker-compose.dev.yml down
+docker compose --env-file .env.development -f docker-compose.dev.yml down
 ```
 
 ### 2. Start Frontend Development Server
@@ -73,7 +73,7 @@ curl http://localhost:8000/health
 - **Type**: PostgreSQL 16
 - **Connection**: `postgresql://postgres:postgres@localhost:5432/realtime_agents`
 - **Tools**: 
-  - Access database: `docker-compose exec db psql -U postgres -d realtime_agents`
+  - Access database: `docker compose --env-file .env.development -f docker-compose.dev.yml exec db psql -U postgres -d realtime_agents`
   - View tables: `\dt`
 
 ## Example: Create Experiment Prompt
@@ -130,19 +130,19 @@ curl -X POST http://localhost:8000/api/conversations/ \
 
 ```bash
 # View service status
-docker-compose -f docker-compose.dev.yml ps
+docker compose --env-file .env.development -f docker-compose.dev.yml ps
 
 # View logs
-docker-compose -f docker-compose.dev.yml logs -f backend
+docker compose --env-file .env.development -f docker-compose.dev.yml logs -f backend
 
 # Restart backend
-docker-compose -f docker-compose.dev.yml restart backend
+docker compose --env-file .env.development -f docker-compose.dev.yml restart backend
 
 # Stop all services
-docker-compose -f docker-compose.dev.yml down
+docker compose --env-file .env.development -f docker-compose.dev.yml down
 
 # Clean database (Careful!)
-docker-compose -f docker-compose.dev.yml down -v
+docker compose --env-file .env.development -f docker-compose.dev.yml down -v
 ```
 
 ## Tech Stack

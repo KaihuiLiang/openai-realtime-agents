@@ -29,7 +29,9 @@ services:
       dockerfile: Dockerfile
     container_name: realtime-agents-backend
     restart: unless-stopped
-    user: "${UID}:${GID}"
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file:
+      - .env.development
     ports:
       # Bind to loopback only so backend is not exposed publicly
       - "127.0.0.1:8000:8000"

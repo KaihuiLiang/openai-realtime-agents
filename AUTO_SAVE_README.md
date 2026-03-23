@@ -41,7 +41,7 @@ curl http://localhost:8000/api/conversations/?limit=10
 
 ```bash
 # Enter database
-docker-compose -f docker-compose.dev.yml exec db psql -U postgres -d realtime_agents
+docker compose --env-file .env.development -f docker-compose.dev.yml exec db psql -U postgres -d realtime_agents
 
 # View all conversations
 SELECT id, session_id, agent_name, turn_count, duration, created_at 
@@ -95,7 +95,7 @@ Future feature to link conversations with specific experiment prompts:
 
 Start a conversation session:
 
-1. Ensure backend is running: `docker-compose -f docker-compose.dev.yml up -d`
+1. Ensure backend is running: `docker compose --env-file .env.development -f docker-compose.dev.yml up -d`
 2. Start frontend: `npm run dev`
 3. Connect and have a conversation
 4. Disconnect or wait for auto-save

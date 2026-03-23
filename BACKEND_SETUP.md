@@ -29,10 +29,10 @@ This project uses FastAPI (Python) as the backend and PostgreSQL as the database
 ### 1. Environment Variable Setup
 
 ```bash
-cp .env.example .env
+cp .env.development.example .env.development
 ```
 
-Edit the `.env` file and add your configuration:
+Edit the `.env.development` file and add your configuration:
 ```env
 OPENAI_API_KEY=your-actual-api-key
 ```
@@ -43,13 +43,13 @@ Start only backend and database (recommended for frontend local development):
 
 ```bash
 # Start database and backend API
-docker-compose -f docker-compose.dev.yml up -d
+docker compose --env-file .env.development -f docker-compose.dev.yml up -d
 
 # View logs
-docker-compose -f docker-compose.dev.yml logs -f backend
+docker compose --env-file .env.development -f docker-compose.dev.yml logs -f backend
 
 # Stop services
-docker-compose -f docker-compose.dev.yml down
+docker compose --env-file .env.development -f docker-compose.dev.yml down
 ```
 
 Backend API will run at `http://localhost:8000`

@@ -19,7 +19,7 @@ class ExperimentPrompt(Base):
 ### 2. 生成 Migration
 在容器內執行：
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic revision --autogenerate -m "describe your changes"
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic revision --autogenerate -m "describe your changes"
 ```
 
 這會在 `backend/alembic/versions/` 目錄下生成一個新的 migration 檔案。
@@ -33,34 +33,34 @@ docker cp realtime-agents-backend:/app/alembic/versions/XXXXX_your_migration.py 
 ### 4. 應用 Migration
 重啟容器會自動應用：
 ```bash
-docker compose -f docker-compose.dev.yml restart backend
+docker compose --env-file .env.development -f docker-compose.dev.yml restart backend
 ```
 
 或手動執行：
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic upgrade head
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic upgrade head
 ```
 
 ## 常用指令
 
 ### 查看當前版本
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic current
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic current
 ```
 
 ### 查看 Migration 歷史
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic history
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic history
 ```
 
 ### 回退到上一個版本
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic downgrade -1
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic downgrade -1
 ```
 
 ### 回退到特定版本
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic downgrade <revision_id>
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic downgrade <revision_id>
 ```
 
 ## 檔案結構
@@ -98,12 +98,12 @@ class User(Base):
 
 2. 生成 migration：
 ```bash
-docker compose -f docker-compose.dev.yml exec backend alembic revision --autogenerate -m "add phone number to user"
+docker compose --env-file .env.development -f docker-compose.dev.yml exec backend alembic revision --autogenerate -m "add phone number to user"
 ```
 
 3. 重啟容器應用變更：
 ```bash
-docker compose -f docker-compose.dev.yml restart backend
+docker compose --env-file .env.development -f docker-compose.dev.yml restart backend
 ```
 
 完成！資料庫會自動更新。
